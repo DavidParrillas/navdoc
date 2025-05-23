@@ -1,0 +1,329 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Usuarios</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#051d3f',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body class="bg-white min-h-screen">
+  <nav class="bg-primary">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-white text-xl font-bold">Dashboard</span>
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a href="{% url 'dashboard' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white flex items-center gap-2" aria-current="page">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                Inicio
+              </a>
+              <a href="{% url 'documentos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Documentos
+              </a>
+              <a href="{% url 'cargar_documento' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="upload" class="w-4 h-4"></i>
+                Subir documento
+              </a>
+              <a href="{% url 'usuarios' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="users" class="w-4 h-4"></i>
+                Usuarios
+              </a>
+              <a href="{% url 'puertos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="anchor" class="w-4 h-4"></i>
+                Puertos
+              </a>
+              <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="check-square" class="w-4 h-4"></i>
+                Validaciones
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-4 flex items-center md:ml-6">
+            <button type="button" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+              <span class="sr-only">Ver notificaciones</span>
+              <i data-lucide="bell" class="h-6 w-6"></i>
+            </button>
+
+            <div class="ml-3 relative">
+              <div>
+                <button type="button" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu-button">
+                  <span class="sr-only">Abrir menú de usuario</span>
+                  <img class="h-8 w-8 rounded-full" src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Avatar de usuario">
+                </button>
+              </div>
+            </div>
+            <a href="{% url 'logout' %}" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+              <span class="sr-only">Cerrar sesión</span>
+              <i data-lucide="log-out" class="h-6 w-6"></i>
+            </a>
+          </div>
+        </div>
+        <div class="-mr-2 flex md:hidden">
+          <button type="button" class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="mobile-menu-button" aria-expanded="false">
+            <span class="sr-only">Abrir menú principal</span>
+            <i data-lucide="menu" class="block h-6 w-6" id="menu-icon"></i>
+            <i data-lucide="x" class="hidden h-6 w-6" id="close-icon"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile menu, show/hide based on menu state -->
+    <div class="hidden md:hidden" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="{% url 'dashboard' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white flex items-center gap-2" aria-current="page">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          Inicio
+        </a>
+        <a href="{% url 'documentos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          Documentos
+        </a>
+        <a href="{% url 'cargar_documento' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="upload" class="w-4 h-4"></i>
+          Subir documento
+        </a>
+        <a href="{% url 'usuarios' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          Usuarios
+        </a>
+        <a href="{% url 'puertos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="anchor" class="w-4 h-4"></i>
+          Puertos
+        </a>
+        <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="check-square" class="w-4 h-4"></i>
+          Validaciones
+        </a>
+      </div>
+      <div class="pt-4 pb-3 border-t border-gray-700">
+        <div class="flex items-center px-5">
+          <div class="ml-3">
+            <div class="text-base font-medium leading-none text-white">Usuario</div>
+            <div class="text-sm font-medium leading-none text-gray-400">usuario@ejemplo.com</div>
+          </div>
+          <button type="button" class="ml-auto bg-gray-800 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+            <span class="sr-only">Ver notificaciones</span>
+            <i data-lucide="bell" class="h-6 w-6"></i>
+          </button>
+        </div>
+        <div class="mt-3 px-2 space-y-1">
+          <a href="{% url 'logout' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Cerrar sesión</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Usuarios</h1>
+        <p class="text-gray-600 mt-2">Gestiona los usuarios del sistema y sus roles</p>
+      </div>
+
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+          <div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Lista de usuarios</h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Información detallada de todos los usuarios registrados</p>
+          </div>
+          <div class="flex space-x-3">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+              </div>
+              <input type="text" id="search" placeholder="Buscar usuarios..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm">
+            </div>
+            <select id="roleFilter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+              <option value="">Todos los roles</option>
+              <option value="admin">Administrador</option>
+              <option value="validator">Validador</option>
+              <option value="user">Usuario</option>
+            </select>
+          </div>
+        </div>
+        <div class="border-t border-gray-200">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último acceso</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
+              <!-- Table content will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
+    
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      menuIcon.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
+    });
+
+    // Sample users data
+    const users = [
+      {
+        id: 1,
+        name: 'Juan Pérez',
+        email: 'juan.perez@ejemplo.com',
+        role: 'admin',
+        status: 'active',
+        lastAccess: '2024-03-20 10:30',
+        avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg'
+      },
+      {
+        id: 2,
+        name: 'María García',
+        email: 'maria.garcia@ejemplo.com',
+        role: 'validator',
+        status: 'active',
+        lastAccess: '2024-03-19 15:45',
+        avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg'
+      },
+      {
+        id: 3,
+        name: 'Carlos Rodríguez',
+        email: 'carlos.rodriguez@ejemplo.com',
+        role: 'user',
+        status: 'inactive',
+        lastAccess: '2024-03-15 09:20',
+        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg'
+      },
+      {
+        id: 4,
+        name: 'Ana Martínez',
+        email: 'ana.martinez@ejemplo.com',
+        role: 'validator',
+        status: 'active',
+        lastAccess: '2024-03-20 08:15',
+        avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg'
+      },
+      {
+        id: 5,
+        name: 'Luis Sánchez',
+        email: 'luis.sanchez@ejemplo.com',
+        role: 'user',
+        status: 'active',
+        lastAccess: '2024-03-18 16:30',
+        avatar: 'https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg'
+      }
+    ];
+
+    function getRoleBadgeClass(role) {
+      switch (role) {
+        case 'admin':
+          return 'bg-purple-100 text-purple-800';
+        case 'validator':
+          return 'bg-blue-100 text-blue-800';
+        default:
+          return 'bg-gray-100 text-gray-800';
+      }
+    }
+
+    function getStatusBadgeClass(status) {
+      return status === 'active' 
+        ? 'bg-green-100 text-green-800' 
+        : 'bg-red-100 text-red-800';
+    }
+
+    function getRoleDisplay(role) {
+      const roles = {
+        admin: 'Administrador',
+        validator: 'Validador',
+        user: 'Usuario'
+      };
+      return roles[role] || role;
+    }
+
+    function renderUsers(filteredUsers = users) {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = filteredUsers.map(user => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10">
+                <img class="h-10 w-10 rounded-full" src="${user.avatar}" alt="${user.name}">
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">${user.name}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeClass(user.role)}">
+              ${getRoleDisplay(user.role)}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(user.status)}">
+              ${user.status === 'active' ? 'Activo' : 'Inactivo'}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.lastAccess}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Search and filter functionality
+    document.getElementById('search').addEventListener('input', filterUsers);
+    document.getElementById('roleFilter').addEventListener('change', filterUsers);
+
+    function filterUsers() {
+      const searchTerm = document.getElementById('search').value.toLowerCase();
+      const roleFilter = document.getElementById('roleFilter').value;
+
+      const filteredUsers = users.filter(user => {
+        const matchesSearch = user.name.toLowerCase().includes(searchTerm) || 
+                            user.email.toLowerCase().includes(searchTerm);
+        const matchesRole = !roleFilter || user.role === roleFilter;
+        return matchesSearch && matchesRole;
+      });
+
+      renderUsers(filteredUsers);
+    }
+
+    // Initial render
+    renderUsers();
+  </script>
+</body>
+</html>

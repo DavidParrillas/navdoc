@@ -1,0 +1,325 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Puertos</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#051d3f',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body class="bg-white min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-primary">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-white text-xl font-bold">Dashboard</span>
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a href="{% url 'dashboard' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white flex items-center gap-2" aria-current="page">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                Inicio
+              </a>
+              <a href="{% url 'documentos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Documentos
+              </a>
+              <a href="{% url 'cargar_documento' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="upload" class="w-4 h-4"></i>
+                Subir documento
+              </a>
+              <a href="{% url 'usuarios' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="users" class="w-4 h-4"></i>
+                Usuarios
+              </a>
+              <a href="{% url 'puertos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="anchor" class="w-4 h-4"></i>
+                Puertos
+              </a>
+              <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="check-square" class="w-4 h-4"></i>
+                Validaciones
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-4 flex items-center md:ml-6">
+            <button type="button" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+              <span class="sr-only">Ver notificaciones</span>
+              <i data-lucide="bell" class="h-6 w-6"></i>
+            </button>
+
+            <div class="ml-3 relative">
+              <div>
+                <button type="button" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu-button">
+                  <span class="sr-only">Abrir menú de usuario</span>
+                  <img class="h-8 w-8 rounded-full" src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Avatar de usuario">
+                </button>
+              </div>
+            </div>
+            <a href="{% url 'logout' %}" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+              <span class="sr-only">Cerrar sesión</span>
+              <i data-lucide="log-out" class="h-6 w-6"></i>
+            </a>
+          </div>
+        </div>
+        <div class="-mr-2 flex md:hidden">
+          <button type="button" class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="mobile-menu-button" aria-expanded="false">
+            <span class="sr-only">Abrir menú principal</span>
+            <i data-lucide="menu" class="block h-6 w-6" id="menu-icon"></i>
+            <i data-lucide="x" class="hidden h-6 w-6" id="close-icon"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile menu, show/hide based on menu state -->
+    <div class="hidden md:hidden" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="{% url 'dashboard' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white flex items-center gap-2" aria-current="page">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          Inicio
+        </a>
+        <a href="{% url 'documentos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          Documentos
+        </a>
+        <a href="{% url 'cargar_documento' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="upload" class="w-4 h-4"></i>
+          Subir documento
+        </a>
+        <a href="{% url 'usuarios' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          Usuarios
+        </a>
+        <a href="{% url 'puertos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="anchor" class="w-4 h-4"></i>
+          Puertos
+        </a>
+        <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+          <i data-lucide="check-square" class="w-4 h-4"></i>
+          Validaciones
+        </a>
+      </div>
+      <div class="pt-4 pb-3 border-t border-gray-700">
+        <div class="flex items-center px-5">
+          <div class="ml-3">
+            <div class="text-base font-medium leading-none text-white">Usuario</div>
+            <div class="text-sm font-medium leading-none text-gray-400">usuario@ejemplo.com</div>
+          </div>
+          <button type="button" class="ml-auto bg-gray-800 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+            <span class="sr-only">Ver notificaciones</span>
+            <i data-lucide="bell" class="h-6 w-6"></i>
+          </button>
+        </div>
+        <div class="mt-3 px-2 space-y-1">
+          <a href="{% url 'logout' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Cerrar sesión</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="mb-8 flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800">Puertos</h1>
+          <p class="text-gray-600 mt-2">Gestiona los puertos del sistema</p>
+        </div>
+        <button onclick="openModal('create')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors duration-300">
+          <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+          Nuevo puerto
+        </button>
+      </div>
+
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ubicación</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacidad</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200" id="puertosTableBody">
+            <!-- Table content will be dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal for Create/Edit -->
+  <div id="modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+    <div class="bg-white rounded-lg px-4 pt-5 pb-4 overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+      <div class="sm:flex sm:items-start">
+        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+          <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">Nuevo puerto</h3>
+          <div class="mt-2">
+            <form id="puertoForm" class="space-y-4">
+              <div>
+                <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                <input type="text" name="nombre" id="nombre" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+              </div>
+              <div>
+                <label for="ubicacion" class="block text-sm font-medium text-gray-700">Ubicación</label>
+                <input type="text" name="ubicacion" id="ubicacion" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+              </div>
+              <div>
+                <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
+                <select name="estado" id="estado" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                  <option value="mantenimiento">En mantenimiento</option>
+                </select>
+              </div>
+              <div>
+                <label for="capacidad" class="block text-sm font-medium text-gray-700">Capacidad (toneladas)</label>
+                <input type="number" name="capacidad" id="capacidad" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+        <button type="button" onclick="savePort()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
+          Guardar
+        </button>
+        <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:w-auto sm:text-sm">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
+    
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      menuIcon.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
+    });
+
+    // Port management
+    let ports = JSON.parse(localStorage.getItem('ports') || '[]');
+    let currentPortId = null;
+
+    function renderPorts() {
+      const tbody = document.getElementById('puertosTableBody');
+      tbody.innerHTML = ports.map(port => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${port.nombre}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${port.ubicacion}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+              port.estado === 'activo' ? 'bg-green-100 text-green-800' :
+              port.estado === 'inactivo' ? 'bg-red-100 text-red-800' :
+              'bg-yellow-100 text-yellow-800'
+            }">
+              ${port.estado.charAt(0).toUpperCase() + port.estado.slice(1)}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${port.capacidad} ton</td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button onclick="openModal('edit', ${port.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
+              <i data-lucide="edit" class="h-5 w-5"></i>
+            </button>
+            <button onclick="deletePort(${port.id})" class="text-red-600 hover:text-red-900">
+              <i data-lucide="trash-2" class="h-5 w-5"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openModal(mode, id = null) {
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modalTitle').textContent = mode === 'create' ? 'Nuevo puerto' : 'Editar puerto';
+      
+      if (mode === 'edit' && id !== null) {
+        currentPortId = id;
+        const port = ports.find(p => p.id === id);
+        if (port) {
+          document.getElementById('nombre').value = port.nombre;
+          document.getElementById('ubicacion').value = port.ubicacion;
+          document.getElementById('estado').value = port.estado;
+          document.getElementById('capacidad').value = port.capacidad;
+        }
+      } else {
+        currentPortId = null;
+        document.getElementById('puertoForm').reset();
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('puertoForm').reset();
+      currentPortId = null;
+    }
+
+    function savePort() {
+      const formData = {
+        nombre: document.getElementById('nombre').value,
+        ubicacion: document.getElementById('ubicacion').value,
+        estado: document.getElementById('estado').value,
+        capacidad: document.getElementById('capacidad').value
+      };
+
+      if (currentPortId === null) {
+        // Create new port
+        formData.id = Date.now();
+        ports.push(formData);
+      } else {
+        // Update existing port
+        const index = ports.findIndex(p => p.id === currentPortId);
+        if (index !== -1) {
+          ports[index] = { ...ports[index], ...formData };
+        }
+      }
+
+      localStorage.setItem('ports', JSON.stringify(ports));
+      renderPorts();
+      closeModal();
+    }
+
+    function deletePort(id) {
+      if (confirm('¿Estás seguro de que deseas eliminar este puerto?')) {
+        ports = ports.filter(p => p.id !== id);
+        localStorage.setItem('ports', JSON.stringify(ports));
+        renderPorts();
+      }
+    }
+
+    // Initial render
+    renderPorts();
+  </script>
+</body>
+</html>

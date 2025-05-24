@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Encargado</title>
+  <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#051d3f',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-white min-h-screen">
+  <nav class="bg-primary">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <span class="text-white text-xl font-bold">Encargado</span>
+          <div class="hidden md:block ml-10 flex items-baseline space-x-4">
+            <a href="{% url 'dashboard' %}" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Inicio
+            </a>
+            <a href="{% url 'documentos' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+              <i data-lucide="file-text" class="w-4 h-4"></i>Documentos
+            </a>
+            <a href="{% url 'puertos' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+              <i data-lucide="anchor" class="w-4 h-4"></i>Puertos
+            </a>
+            <a href="{% url 'validaciones' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+              <i data-lucide="check-square" class="w-4 h-4"></i>Validaciones
+            </a>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-4 flex items-center md:ml-6">
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
+                <span class="sr-only">Cerrar sesión</span>
+                <i data-lucide="log-out" class="h-6 w-6"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Bienvenido/a, Encargado</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Documentos</p>
+            <p class="text-2xl font-semibold">254</p>
+          </div>
+          <div class="bg-primary/10 p-3 rounded-full">
+            <i data-lucide="file-text" class="h-6 w-6 text-primary"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Puertos</p>
+            <p class="text-2xl font-semibold">35</p>
+          </div>
+          <div class="bg-primary/10 p-3 rounded-full">
+            <i data-lucide="anchor" class="h-6 w-6 text-primary"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Validaciones</p>
+            <p class="text-2xl font-semibold">189</p>
+          </div>
+          <div class="bg-primary/10 p-3 rounded-full">
+            <i data-lucide="check-square" class="h-6 w-6 text-primary"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

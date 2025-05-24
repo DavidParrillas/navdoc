@@ -73,10 +73,13 @@
                 </button>
               </div>
             </div>
-            <a href="{% url 'logout' %}" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-              <span class="sr-only">Cerrar sesión</span>
-              <i data-lucide="log-out" class="h-6 w-6"></i>
-            </a>
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
+                <span class="sr-only">Cerrar sesión</span>
+                <i data-lucide="log-out" class="h-6 w-6"></i>
+              </button>
+            </form>
           </div>
         </div>
         <div class="-mr-2 flex md:hidden">

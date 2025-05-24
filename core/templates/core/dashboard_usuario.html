@@ -1,59 +1,7 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Usuario</title>
-  <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#051d3f',
-          }
-        }
-      }
-    }
-  </script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="{% static 'core/js/auth.js' %}"></script>
-</head>
-<body class="bg-white min-h-screen">
-  <nav class="bg-primary">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center">
-          <span class="text-white text-xl font-bold">Dashboard Usuario</span>
-          <div class="hidden md:block ml-10 space-x-4 flex items-center">
-            <a href="{% url 'dashboard' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white flex items-center gap-2">
-              <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Inicio
-            </a>
-            <a href="{% url 'documentos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-              <i data-lucide="file-text" class="w-4 h-4"></i> Documentos
-            </a>
-            <a href="{% url 'cargar_documento' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-              <i data-lucide="upload" class="w-4 h-4"></i> Subir documento
-            </a>
-          </div>
-        </div>
-        <div class="hidden md:block">
-          <div class="ml-4 flex items-center">
-            <form method="POST" action="{% url 'logout' %}">
-              {% csrf_token %}
-              <button type="submit" class="text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
-                <span class="sr-only">Cerrar sesión</span>
-                <i data-lucide="log-out" class="h-6 w-6"></i>
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
 
+  {% extends "layout.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
   <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <div>
       <h1 class="text-3xl font-bold text-gray-800 mb-2">Bienvenido, Usuario</h1>
@@ -86,8 +34,4 @@
     </div>
   </main>
 
-  <script>
-    lucide.createIcons();
-  </script>
-</body>
-</html>
+{% endblock %}

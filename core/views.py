@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login  
 from django.contrib import messages  
 from .forms import DocumentoCargaForm
+from django.shortcuts import render
+
 
 def home(request):
     return render(request, 'core/home.html')
@@ -26,10 +28,11 @@ def login_view(request):
 @login_required
 def dashboard(request):
     user = request.user
+    print(user.groups.all()) 
 
     if user.groups.filter(name="Administradores").exists():
         return render(request, 'core/dashboard_admin.html')
-    elif user.groups.filter(name="Usuarios").exists():
+    elif user.groups.filter(name="Usuario").exists():
         return render(request, 'core/dashboard_usuario.html')
     elif user.groups.filter(name="Encargados").exists():
         return render(request, 'core/dashboard_encargado.html')

@@ -37,7 +37,6 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último acceso</th>
               </tr>
             </thead>
@@ -65,55 +64,6 @@
       menuIcon.classList.toggle('hidden');
       closeIcon.classList.toggle('hidden');
     });
-
-    // Sample users data
-    const users = [
-      {
-        id: 1,
-        name: 'Juan Pérez',
-        email: 'juan.perez@ejemplo.com',
-        role: 'admin',
-        status: 'active',
-        lastAccess: '2024-03-20 10:30',
-        avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg'
-      },
-      {
-        id: 2,
-        name: 'María García',
-        email: 'maria.garcia@ejemplo.com',
-        role: 'validator',
-        status: 'active',
-        lastAccess: '2024-03-19 15:45',
-        avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg'
-      },
-      {
-        id: 3,
-        name: 'Carlos Rodríguez',
-        email: 'carlos.rodriguez@ejemplo.com',
-        role: 'user',
-        status: 'inactive',
-        lastAccess: '2024-03-15 09:20',
-        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg'
-      },
-      {
-        id: 4,
-        name: 'Ana Martínez',
-        email: 'ana.martinez@ejemplo.com',
-        role: 'validator',
-        status: 'active',
-        lastAccess: '2024-03-20 08:15',
-        avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg'
-      },
-      {
-        id: 5,
-        name: 'Luis Sánchez',
-        email: 'luis.sanchez@ejemplo.com',
-        role: 'user',
-        status: 'active',
-        lastAccess: '2024-03-18 16:30',
-        avatar: 'https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg'
-      }
-    ];
 
     function getRoleBadgeClass(role) {
       switch (role) {

@@ -1,262 +1,526 @@
 {% extends "layout.html" %}
 {% block title %}Dashboard Admin{% endblock %}
 {% block content %}
-
-  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+ <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
-      <div class="mb-8 flex justify-between items-center">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-800">Documentos</h1>
-          <p class="text-gray-600 mt-2">Gestiona todos los documentos del sistema</p>
-        </div>
-        <div>
-          <a href="./cargar-documento.html" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors duration-300">
-            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-            Nuevo documento
-          </a>
-        </div>
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Documentos</h1>
+        <p class="text-gray-600 mt-2">Consulta y gestiona todos los documentos de carga registrados en el sistema</p>
       </div>
 
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6 flex items-center justify-between">
+      <!-- Documents Table -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h3 class="text-lg leading-6 font-medium text-gray-900">Lista de documentos</h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Visualiza y gestiona todos los documentos registrados.</p>
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Documentos de Carga</h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Lista completa de documentos registrados en el sistema</p>
           </div>
-          <div class="flex items-center">
-            <div class="relative mr-4">
+          <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
               </div>
-              <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm" placeholder="Buscar documentos...">
+              <input type="text" id="search" placeholder="Buscar documentos..." class="block w-full sm:w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm">
             </div>
-            <div>
-              <select class="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-                <option>Todos los estados</option>
-                <option>Validado</option>
-                <option>Pendiente</option>
-                <option>Rechazado</option>
-              </select>
-            </div>
+            <select id="typeFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+              <option value="">Todos los tipos</option>
+              <option value="contrato">Contrato</option>
+              <option value="certificado">Certificado</option>
+              <option value="informe">Informe</option>
+              <option value="manual">Manual</option>
+              <option value="licencia">Licencia</option>
+              <option value="permiso">Permiso</option>
+              <option value="factura">Factura</option>
+              <option value="otro">Otro</option>
+            </select>
+            <select id="statusFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+              <option value="">Todos los estados</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="en_revision">En revisión</option>
+              <option value="validado">Validado</option>
+              <option value="rechazado">Rechazado</option>
+            </select>
+            <select id="portFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+              <option value="1">Puerto de La Unión</option>
+              <option value="2">Puerto de La Libertad</option>
+              <option value="3">Puerto El Triunfo</option>
+              <option value="4">Puerto de La Concordia</option>
+              <option value="5">Puerto de La Puntilla</option>
+              <option value="6">Puerto El Tamarindo</option>
+              <option value="7">Puerto El Cuco</option>
+            </select>
           </div>
         </div>
-        <div class="border-t border-gray-200">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tamaño</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puerto</th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr class="hover:bg-gray-50 transition-colors duration-200">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-primary/10 rounded-md">
-                      <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
-                    </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">Informe_2023_Q4.pdf</div>
-                      <div class="text-sm text-gray-500">Informe trimestral</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">10/04/2023</div>
-                  <div class="text-sm text-gray-500">12:30 PM</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">2.5 MB</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Validado</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Puerto A</td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end space-x-2">
-                    <button class="text-indigo-600 hover:text-indigo-900" title="Ver">
-                      <i data-lucide="eye" class="h-5 w-5"></i>
-                    </button>
-                    <button class="text-blue-600 hover:text-blue-900" title="Descargar">
-                      <i data-lucide="download" class="h-5 w-5"></i>
-                    </button>
-                    <button class="text-red-600 hover:text-red-900" title="Eliminar">
-                      <i data-lucide="trash-2" class="h-5 w-5"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr class="hover:bg-gray-50 transition-colors duration-200">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-primary/10 rounded-md">
-                      <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
-                    </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">Contrato_Puerto_A.docx</div>
-                      <div class="text-sm text-gray-500">Contrato de operación</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">09/04/2023</div>
-                  <div class="text-sm text-gray-500">10:15 AM</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">1.8 MB</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pendiente</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Puerto A</td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end space-x-2">
-                    <button class="text-indigo-600 hover:text-indigo-900" title="Ver">
-                      <i data-lucide="eye" class="h-5 w-5"></i>
-                    </button>
-                    <button class="text-blue-600 hover:text-blue-900" title="Descargar">
-                      <i data-lucide="download" class="h-5 w-5"></i>
-                    </button>
-                    <button class="text-red-600 hover:text-red-900" title="Eliminar">
-                      <i data-lucide="trash-2" class="h-5 w-5"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr class="hover:bg-gray-50 transition-colors duration-200">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-primary/10 rounded-md">
-                      <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
-                    </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">Manual_Operaciones.pdf</div>
-                      <div class="text-sm text-gray-500">Manual de procedimientos</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">07/04/2023</div>
-                  <div class="text-sm text-gray-500">09:45 AM</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">5.2 MB</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Validado</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Puerto B</td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end space-x-2">
-                    <button class="text-indigo-600 hover:text-indigo-900" title="Ver">
-                      <i data-lucide="eye" class="h-5 w-5"></i>
-                    </button>
-                    <button class="text-blue-600 hover:text-blue-900" title="Descargar">
-                      <i data-lucide="download" class="h-5 w-5"></i>
-                    </button>
-                    <button class="text-red-600 hover:text-red-900" title="Eliminar">
-                      <i data-lucide="trash-2" class="h-5 w-5"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr class="hover:bg-gray-50 transition-colors duration-200">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-primary/10 rounded-md">
-                      <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
-                    </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">Certificado_Seguridad.pdf</div>
-                      <div class="text-sm text-gray-500">Certificación ISO</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">05/04/2023</div>
-                  <div class="text-sm text-gray-500">03:20 PM</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">1.1 MB</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rechazado</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Puerto C</td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end space-x-2">
-                    <button class="text-indigo-600 hover:text-indigo-900" title="Ver">
-                      <i data-lucide="eye" class="h-5 w-5"></i>
-                    </button>
-                    <button class="text-blue-600 hover:text-blue-900" title="Descargar">
-                      <i data-lucide="download" class="h-5 w-5"></i>
-                    </button>
-                    <button class="text-red-600 hover:text-red-900" title="Eliminar">
-                      <i data-lucide="trash-2" class="h-5 w-5"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        
+        <!-- Mobile Cards View -->
+        <div class="block sm:hidden" id="mobileCards">
+          <!-- Mobile cards will be populated here -->
         </div>
-        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-          <div class="flex items-center justify-between">
-            <div class="flex-1 flex justify-between sm:hidden">
-              <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                Anterior
-              </button>
-              <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                Siguiente
-              </button>
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p class="text-sm text-gray-700">
-                  Mostrando <span class="font-medium">1</span> a <span class="font-medium">4</span> de <span class="font-medium">24</span> resultados
-                </p>
-              </div>
-              <div>
-                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                  <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <span class="sr-only">Anterior</span>
-                    <i data-lucide="chevron-left" class="h-5 w-5"></i>
-                  </button>
-                  <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    1
-                  </button>
-                  <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    2
-                  </button>
-                  <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    3
-                  </button>
-                  <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    4
-                  </button>
-                  <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    5
-                  </button>
-                  <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    6
-                  </button>
-                  <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <span class="sr-only">Siguiente</span>
-                    <i data-lucide="chevron-right" class="h-5 w-5"></i>
-                  </button>
-                </nav>
-              </div>
-            </div>
+
+        <!-- Desktop Table View -->
+        <div class="hidden sm:block border-t border-gray-200">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('nombre')">
+                    <div class="flex items-center space-x-1">
+                      <span>Documento</span>
+                      <i data-lucide="chevron-up-down" class="h-4 w-4"></i>
+                    </div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('tipo')">
+                    <div class="flex items-center space-x-1">
+                      <span>Tipo</span>
+                      <i data-lucide="chevron-up-down" class="h-4 w-4"></i>
+                    </div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('puerto')">
+                    <div class="flex items-center space-x-1">
+                      <span>Puerto</span>
+                      <i data-lucide="chevron-up-down" class="h-4 w-4"></i>
+                    </div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('fecha')">
+                    <div class="flex items-center space-x-1">
+                      <span>Fecha</span>
+                      <i data-lucide="chevron-up-down" class="h-4 w-4"></i>
+                    </div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('usuario')">
+                    <div class="flex items-center space-x-1">
+                      <span>Subido por</span>
+                      <i data-lucide="chevron-up-down" class="h-4 w-4"></i>
+                    </div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('estado')">
+                    <div class="flex items-center space-x-1">
+                      <span>Estado</span>
+                      <i data-lucide="chevron-up-down" class="h-4 w-4"></i>
+                    </div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200" id="documentsTableBody">
+                <!-- Table content will be dynamically populated -->
+              </tbody>
+            </table>
           </div>
         </div>
+
       </div>
     </div>
   </main>
+
+  <!-- Document Detail Modal -->
+  <div id="documentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
+      <div class="mt-3">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Detalles del Documento</h3>
+          <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeDocumentModal()">
+            <i data-lucide="x" class="h-6 w-6"></i>
+          </button>
+        </div>
+        <div id="documentDetails" class="space-y-4">
+          <!-- Document details will be populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
+    
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      menuIcon.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
+    });
+
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let filteredDocuments = [...documents];
+    let sortColumn = '';
+    let sortDirection = 'asc';
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'pendiente':
+          return 'bg-yellow-100 text-yellow-800';
+        case 'en_revision':
+          return 'bg-blue-100 text-blue-800';
+        case 'validado':
+          return 'bg-green-100 text-green-800';
+        case 'rechazado':
+          return 'bg-red-100 text-red-800';
+        default:
+          return 'bg-gray-100 text-gray-800';
+      }
+    }
+
+    function getTypeBadgeClass(type) {
+      switch (type) {
+        case 'contrato':
+          return 'bg-purple-100 text-purple-800';
+        case 'certificado':
+          return 'bg-blue-100 text-blue-800';
+        case 'informe':
+          return 'bg-green-100 text-green-800';
+        case 'manual':
+          return 'bg-orange-100 text-orange-800';
+        case 'licencia':
+          return 'bg-indigo-100 text-indigo-800';
+        case 'permiso':
+          return 'bg-pink-100 text-pink-800';
+        case 'factura':
+          return 'bg-teal-100 text-teal-800';
+        default:
+          return 'bg-gray-100 text-gray-800';
+      }
+    }
+
+    function getStatusDisplay(status) {
+      const statuses = {
+        pendiente: 'Pendiente',
+        en_revision: 'En revisión',
+        validado: 'Validado',
+        rechazado: 'Rechazado'
+      };
+      return statuses[status] || status;
+    }
+
+    function getTypeDisplay(type) {
+      const types = {
+        contrato: 'Contrato',
+        certificado: 'Certificado',
+        informe: 'Informe',
+        manual: 'Manual',
+        licencia: 'Licencia',
+        permiso: 'Permiso',
+        factura: 'Factura',
+        otro: 'Otro'
+      };
+      return types[type] || type;
+    }
+
+    function getPortDisplay(port) {
+      const ports = {
+        1: 'Puerto de La Unión',
+        2: 'Puerto de La Libertad',
+        3: 'Puerto El Triunfo',
+        4: 'Puerto de La Concordia',
+        5: 'Puerto de La Puntilla',
+        6: 'Puerto El Tamarindo',
+        7: 'Puerto El Cuco'
+      };
+
+      return ports[port] || port;
+    }
+
+    function renderDocuments() {
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const paginatedDocuments = filteredDocuments.slice(start, end);
+
+      // Desktop table
+      const tbody = document.getElementById('documentsTableBody');
+      tbody.innerHTML = paginatedDocuments.map(doc => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="bg-primary/10 p-2 rounded-md mr-3">
+                <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-900">${doc.nombre}</div>
+                <div class="text-sm text-gray-500">${doc.tamaño}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getTypeBadgeClass(doc.tipo)}">
+              ${getTypeDisplay(doc.tipo)}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${getPortDisplay(doc.puerto)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${doc.fecha}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${doc.usuario}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(doc.estado)}">
+              ${getStatusDisplay(doc.estado)}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <div class="flex space-x-2">
+              <button onclick="viewDocument(${doc.id})" class="text-primary hover:text-primary/80" title="Ver detalles">
+                <i data-lucide="eye" class="h-4 w-4"></i>
+              </button>
+              <button onclick="downloadDocument(${doc.id})" class="text-gray-600 hover:text-gray-800" title="Descargar">
+                <i data-lucide="download" class="h-4 w-4"></i>
+              </button>
+              <button onclick="editDocument(${doc.id})" class="text-blue-600 hover:text-blue-800" title="Editar">
+                <i data-lucide="edit" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Mobile cards
+      const mobileCards = document.getElementById('mobileCards');
+      mobileCards.innerHTML = paginatedDocuments.map(doc => `
+        <div class="bg-white border-b border-gray-200 p-4">
+          <div class="flex items-start justify-between">
+            <div class="flex items-start space-x-3 flex-1">
+              <div class="bg-primary/10 p-2 rounded-md">
+                <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate">${doc.nombre}</p>
+                <p class="text-xs text-gray-500">${doc.tamaño} • ${getPortDisplay(doc.puerto)}</p>
+                <div class="flex items-center space-x-2 mt-2">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadgeClass(doc.tipo)}">
+                    ${getTypeDisplay(doc.tipo)}
+                  </span>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(doc.estado)}">
+                    ${getStatusDisplay(doc.estado)}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Por ${doc.usuario} • ${doc.fecha}</p>
+              </div>
+            </div>
+            <div class="flex space-x-2 ml-2">
+              <button onclick="viewDocument(${doc.id})" class="text-primary hover:text-primary/80">
+                <i data-lucide="eye" class="h-4 w-4"></i>
+              </button>
+              <button onclick="downloadDocument(${doc.id})" class="text-gray-600 hover:text-gray-800">
+                <i data-lucide="download" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Re-initialize Lucide icons
+      lucide.createIcons();
+
+      // Update pagination
+      updatePagination();
+    }
+
+    function updatePagination() {
+      const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
+      const start = (currentPage - 1) * itemsPerPage + 1;
+      const end = Math.min(currentPage * itemsPerPage, filteredDocuments.length);
+
+      document.getElementById('startRecord').textContent = start;
+      document.getElementById('endRecord').textContent = end;
+      document.getElementById('totalRecords').textContent = filteredDocuments.length;
+
+      // Generate pagination buttons
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+
+      // Previous button
+      const prevBtn = document.createElement('button');
+      prevBtn.className = `relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}`;
+      prevBtn.innerHTML = '<i data-lucide="chevron-left" class="h-5 w-5"></i>';
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderDocuments();
+        }
+      };
+      pagination.appendChild(prevBtn);
+
+      // Page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          const pageBtn = document.createElement('button');
+          pageBtn.className = `relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+            i === currentPage 
+              ? 'z-10 bg-primary border-primary text-white' 
+              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+          }`;
+          pageBtn.textContent = i;
+          pageBtn.onclick = () => {
+            currentPage = i;
+            renderDocuments();
+          };
+          pagination.appendChild(pageBtn);
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          const ellipsis = document.createElement('span');
+          ellipsis.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
+          ellipsis.textContent = '...';
+          pagination.appendChild(ellipsis);
+        }
+      }
+
+      // Next button
+      const nextBtn = document.createElement('button');
+      nextBtn.className = `relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}`;
+      nextBtn.innerHTML = '<i data-lucide="chevron-right" class="h-5 w-5"></i>';
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderDocuments();
+        }
+      };
+      pagination.appendChild(nextBtn);
+
+      lucide.createIcons();
+    }
+
+    // Search and filter functionality
+    document.getElementById('search').addEventListener('input', filterDocuments);
+    document.getElementById('typeFilter').addEventListener('change', filterDocuments);
+    document.getElementById('statusFilter').addEventListener('change', filterDocuments);
+    document.getElementById('portFilter').addEventListener('change', filterDocuments);
+
+    function filterDocuments() {
+      const searchTerm = document.getElementById('search').value.toLowerCase();
+      const typeFilter = document.getElementById('typeFilter').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+      const portFilter = document.getElementById('portFilter').value;
+
+      filteredDocuments = documents.filter(doc => {
+        const matchesSearch = doc.nombre.toLowerCase().includes(searchTerm) || 
+                            doc.usuario.toLowerCase().includes(searchTerm) ||
+                            doc.observaciones.toLowerCase().includes(searchTerm);
+        const matchesType = !typeFilter || doc.tipo === typeFilter;
+        const matchesStatus = !statusFilter || doc.estado === statusFilter;
+        const matchesPort = !portFilter || doc.puerto === portFilter;
+        return matchesSearch && matchesType && matchesStatus && matchesPort;
+      });
+
+      currentPage = 1;
+      renderDocuments();
+    }
+
+    // Sorting functionality
+    function sortTable(column) {
+      if (sortColumn === column) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortColumn = column;
+        sortDirection = 'asc';
+      }
+
+      filteredDocuments.sort((a, b) => {
+        let aValue = a[column];
+        let bValue = b[column];
+
+        if (column === 'fecha') {
+          aValue = new Date(aValue);
+          bValue = new Date(bValue);
+        }
+
+        if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      renderDocuments();
+    }
+
+    // Document actions
+    function viewDocument(documentId) {
+      const document = documents.find(doc => doc.id === documentId);
+      if (!document) return;
+
+      const details = document.getElementById('documentDetails');
+      details.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nombre del archivo</label>
+            <p class="mt-1 text-sm text-gray-900">${document.nombre}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Tipo</label>
+            <p class="mt-1 text-sm text-gray-900">${getTypeDisplay(document.tipo)}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Puerto</label>
+            <p class="mt-1 text-sm text-gray-900">${getPortDisplay(document.puerto)}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha del documento</label>
+            <p class="mt-1 text-sm text-gray-900">${document.fecha}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Subido por</label>
+            <p class="mt-1 text-sm text-gray-900">${document.usuario}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha de subida</label>
+            <p class="mt-1 text-sm text-gray-900">${document.fechaSubida}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Estado</label>
+            <p class="mt-1">
+              <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(document.estado)}">
+                ${getStatusDisplay(document.estado)}
+              </span>
+            </p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Tamaño</label>
+            <p class="mt-1 text-sm text-gray-900">${document.tamaño}</p>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Observaciones</label>
+            <p class="mt-1 text-sm text-gray-900">${document.observaciones}</p>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button onclick="downloadDocument(${document.id})" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <i data-lucide="download" class="h-4 w-4 inline mr-2"></i>
+            Descargar
+          </button>
+          <button onclick="editDocument(${document.id})" class="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary/90">
+            <i data-lucide="edit" class="h-4 w-4 inline mr-2"></i>
+            Editar
+          </button>
+        </div>
+      `;
+
+      document.getElementById('documentModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeDocumentModal() {
+      document.getElementById('documentModal').classList.add('hidden');
+    }
+
+    function downloadDocument(documentId) {
+      // Implement download functionality
+      alert('Descargando documento...');
+    }
+
+    function editDocument(documentId) {
+      // Implement edit functionality
+      alert('Redirigiendo a editar documento...');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('documentModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeDocumentModal();
+      }
+    });
+
+    // Initial render
+    renderDocuments();
+  </script>
 {% endblock %}

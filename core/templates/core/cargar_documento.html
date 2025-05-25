@@ -1,136 +1,362 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Inicio</title>
-  <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#051d3f',
-          }
-        }
-      }
-    }
-  </script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="{% static 'core/js/auth.js' %}"></script>
-</head>
+{% extends "layout.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
 <body class="bg-white min-h-screen">
-  <nav class="bg-primary">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center">
+
+  <main class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Subir Documento</h1>
+        <p class="text-gray-600 mt-2">Carga un nuevo documento al sistema para su validación</p>
+      </div>
+
+      <!-- Success/Error Messages -->
+      <div id="successMessage" class="hidden mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+        <div class="flex">
           <div class="flex-shrink-0">
-            <span class="text-white text-xl font-bold">Dashboard</span>
+            <i data-lucide="check-circle" class="h-5 w-5 text-green-400"></i>
           </div>
-          <div class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-4">
-              <a href="{% url 'dashboard' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white flex items-center gap-2" aria-current="page">
-                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                Inicio
-              </a>
-              <a href="{% url 'documentos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-                <i data-lucide="file-text" class="w-4 h-4"></i>
-                Documentos
-              </a>
-              <a href="{% url 'cargar_documento' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-                <i data-lucide="upload" class="w-4 h-4"></i>
-                Subir documento
-              </a>
-              <a href="{% url 'usuarios' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-                <i data-lucide="users" class="w-4 h-4"></i>
-                Usuarios
-              </a>
-              <a href="{% url 'puertos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-                <i data-lucide="anchor" class="w-4 h-4"></i>
-                Puertos
-              </a>
-              <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-                <i data-lucide="check-square" class="w-4 h-4"></i>
-                Validaciones
-              </a>
-            </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-green-800">
+              Documento subido exitosamente. Será enviado para validación.
+            </p>
           </div>
         </div>
-        <div class="hidden md:block">
-          <div class="ml-4 flex items-center md:ml-6">
-            <button type="button" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-              <span class="sr-only">Ver notificaciones</span>
-              <i data-lucide="bell" class="h-6 w-6"></i>
-            </button>
+      </div>
 
-            <div class="ml-3 relative">
-              <div>
-                <button type="button" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu-button">
-                  <span class="sr-only">Abrir menú de usuario</span>
-                  <img class="h-8 w-8 rounded-full" src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Avatar de usuario">
-                </button>
+      <div id="errorMessage" class="hidden mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i data-lucide="alert-circle" class="h-5 w-5 text-red-400"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-red-800" id="errorText">
+              Error al subir el documento. Por favor, intenta nuevamente.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload Form -->
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Información del Documento</h3>
+          <p class="mt-1 text-sm text-gray-600">Complete todos los campos requeridos para subir el documento</p>
+        </div>
+
+        <form id="uploadForm" class="px-6 py-6 space-y-6" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <!-- Document Type -->
+          <div>
+            <label for="tipo" class="block text-sm font-medium text-gray-700 mb-2">
+              Tipo de Documento <span class="text-red-500">*</span>
+            </label>
+            <select id="tipo" name="tipo" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+              <option value="">Selecciona el tipo de documento</option>
+              <option value="contrato">Contrato</option>
+              <option value="certificado">Certificado</option>
+              <option value="informe">Informe</option>
+              <option value="manual">Manual de Operaciones</option>
+              <option value="licencia">Licencia</option>
+              <option value="permiso">Permiso</option>
+              <option value="factura">Factura</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <!-- Port Selection -->
+          <div>
+            <label for="puerto" class="block text-sm font-medium text-gray-700 mb-2">
+              Puerto <span class="text-red-500">*</span>
+            </label>
+            <select id="puerto" name="puerto" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+              <option value="">Selecciona el puerto</option>
+              <option value="1">Puerto de La Unión</option>
+              <option value="2">Puerto de La Libertad</option>
+              <option value="3">Puerto El Triunfo</option>
+              <option value="4">Puerto de La Concordia</option>
+              <option value="5">Puerto de La Puntilla</option>
+              <option value="6">Puerto El Tamarindo</option>
+              <option value="7">Puerto El Cuco</option>
+            </select>
+          </div>
+
+          <!-- Date -->
+          <div>
+            <label for="fecha" class="block text-sm font-medium text-gray-700 mb-2">
+              Fecha del Documento <span class="text-red-500">*</span>
+            </label>
+            <input type="date" id="fecha" name="fecha" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+          </div>
+
+          <!-- File Upload -->
+          <div>
+            <label for="archivo_pdf" class="block text-sm font-medium text-gray-700 mb-2">
+              Archivo PDF <span class="text-red-500">*</span>
+            </label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary transition-colors duration-200" id="dropZone">
+              <div class="space-y-1 text-center">
+                <div class="mx-auto h-12 w-12 text-gray-400" id="uploadIcon">
+                  <i data-lucide="upload-cloud" class="h-12 w-12"></i>
+                </div>
+                <div class="flex text-sm text-gray-600">
+                  <label for="archivo_pdf" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary">
+                    <span id="uploadText">Selecciona un archivo</span>
+                    <input id="archivo_pdf" name="archivo_pdf" type="file" accept=".pdf" required class="sr-only">
+                  </label>
+                  <p class="pl-1">o arrastra y suelta</p>
+                </div>
+                <p class="text-xs text-gray-500">Solo archivos PDF hasta 10MB</p>
+                <div id="fileInfo" class="hidden mt-2">
+                  <div class="flex items-center justify-center space-x-2">
+                    <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
+                    <span id="fileName" class="text-sm font-medium text-gray-900"></span>
+                    <span id="fileSize" class="text-xs text-gray-500"></span>
+                  </div>
+                </div>
               </div>
             </div>
-            <a href="{% url 'logout' %}" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-              <span class="sr-only">Cerrar sesión</span>
-              <i data-lucide="log-out" class="h-6 w-6"></i>
-            </a>
           </div>
-        </div>
-        <div class="-mr-2 flex md:hidden">
-          <button type="button" class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="mobile-menu-button" aria-expanded="false">
-            <span class="sr-only">Abrir menú principal</span>
-            <i data-lucide="menu" class="block h-6 w-6" id="menu-icon"></i>
-            <i data-lucide="x" class="hidden h-6 w-6" id="close-icon"></i>
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Mobile menu, show/hide based on menu state -->
-    <div class="hidden md:hidden" id="mobile-menu">
-      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <a href="{% url 'dashboard' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white flex items-center gap-2" aria-current="page">
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-          Inicio
-        </a>
-        <a href="{% url 'documentos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-          <i data-lucide="file-text" class="w-4 h-4"></i>
-          Documentos
-        </a>
-        <a href="{% url 'cargar_documento' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-          <i data-lucide="upload" class="w-4 h-4"></i>
-          Subir documento
-        </a>
-        <a href="{% url 'usuarios' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-          <i data-lucide="users" class="w-4 h-4"></i>
-          Usuarios
-        </a>
-        <a href="{% url 'puertos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-          <i data-lucide="anchor" class="w-4 h-4"></i>
-          Puertos
-        </a>
-        <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-          <i data-lucide="check-square" class="w-4 h-4"></i>
-          Validaciones
-        </a>
-      </div>
-      <div class="pt-4 pb-3 border-t border-gray-700">
-        <div class="flex items-center px-5">
-          <div class="ml-3">
-            <div class="text-base font-medium leading-none text-white">Usuario</div>
-            <div class="text-sm font-medium leading-none text-gray-400">usuario@ejemplo.com</div>
+          <!-- Observations -->
+          <div>
+            <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
+              Observaciones
+            </label>
+            <textarea id="observaciones" name="observaciones" rows="4" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Añade cualquier observación o comentario sobre el documento (opcional)"></textarea>
           </div>
-          <button type="button" class="ml-auto bg-gray-800 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-            <span class="sr-only">Ver notificaciones</span>
-            <i data-lucide="bell" class="h-6 w-6"></i>
-          </button>
+
+          <!-- Submit Buttons -->
+          <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <button type="button" onclick="resetForm()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+              Limpiar
+            </button>
+            <button type="submit" id="submitBtn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed">
+              <span id="submitText">Subir Documento</span>
+              <i data-lucide="loader" class="hidden h-4 w-4 ml-2 animate-spin" id="loadingIcon"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Recent Uploads -->
+      <div class="mt-8 bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Documentos Recientes</h3>
+          <p class="mt-1 text-sm text-gray-600">Últimos documentos que has subido</p>
         </div>
-        <div class="mt-3 px-2 space-y-1">
-          <a href="{% url 'logout' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Cerrar sesión</a>
+        <div class="px-6 py-4">
+          <div class="space-y-3" id="recentUploads">
+            <!-- Recent uploads will be populated here -->
+          </div>
         </div>
       </div>
     </div>
-  </nav>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
+    
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      menuIcon.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
+    });
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('archivo_pdf');
+    const uploadText = document.getElementById('uploadText');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const uploadIcon = document.getElementById('uploadIcon');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-primary', 'bg-primary/5');
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-primary', 'bg-primary/5');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-primary', 'bg-primary/5');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileSelect(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    function handleFileSelect(file) {
+      if (file.type !== 'application/pdf') {
+        showError('Por favor, selecciona solo archivos PDF.');
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        showError('El archivo es demasiado grande. El tamaño máximo es 10MB.');
+        return;
+      }
+
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+      fileInfo.classList.remove('hidden');
+      uploadText.textContent = 'Cambiar archivo';
+      
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInput.files = dt.files;
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const submitText = document.getElementById('submitText');
+      const loadingIcon = document.getElementById('loadingIcon');
+      
+      submitBtn.disabled = true;
+      submitText.textContent = 'Subiendo...';
+      loadingIcon.classList.remove('hidden');
+      
+      hideMessages();
+      
+      try {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        showSuccess();
+        
+        resetForm();
+        
+        addToRecentUploads();
+        
+      } catch (error) {
+        showError('Error al subir el documento. Por favor, intenta nuevamente.');
+      } finally {
+        submitBtn.disabled = false;
+        submitText.textContent = 'Subir Documento';
+        loadingIcon.classList.add('hidden');
+      }
+    });
+
+    function showSuccess() {
+      document.getElementById('successMessage').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('successMessage').classList.add('hidden');
+      }, 5000);
+    }
+
+    function showError(message) {
+      document.getElementById('errorText').textContent = message;
+      document.getElementById('errorMessage').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('errorMessage').classList.add('hidden');
+      }, 5000);
+    }
+
+    function hideMessages() {
+      document.getElementById('successMessage').classList.add('hidden');
+      document.getElementById('errorMessage').classList.add('hidden');
+    }
+
+    function resetForm() {
+      document.getElementById('uploadForm').reset();
+      fileInfo.classList.add('hidden');
+      uploadText.textContent = 'Selecciona un archivo';
+    }
+
+    function addToRecentUploads() {
+      const recentUploads = document.getElementById('recentUploads');
+      const tipo = document.getElementById('tipo').value;
+      const puerto = document.getElementById('puerto').selectedOptions[0].text;
+      const fecha = document.getElementById('fecha').value;
+      const archivo = document.getElementById('archivo_pdf').files[0];
+      
+      if (!archivo) return;
+      
+      const uploadItem = document.createElement('div');
+      uploadItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-md';
+      uploadItem.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <div class="bg-primary/10 p-2 rounded-md">
+            <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-900">${archivo.name}</p>
+            <p class="text-xs text-gray-500">${tipo} - ${puerto} - ${fecha}</p>
+          </div>
+        </div>
+        <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+          Pendiente
+        </span>
+      `;
+      
+      recentUploads.insertBefore(uploadItem, recentUploads.firstChild);
+      
+      lucide.createIcons();
+      
+      while (recentUploads.children.length > 5) {
+        recentUploads.removeChild(recentUploads.lastChild);
+      }
+    }
+
+    document.getElementById('fecha').valueAsDate = new Date();
+
+
+      const recentUploads = document.getElementById('recentUploads');
+      
+      sampleUploads.forEach(upload => {
+        const statusClass = upload.status === 'Aprobado' ? 'bg-green-100 text-green-800' : 
+                           upload.status === 'En revisión' ? 'bg-blue-100 text-blue-800' : 
+                           'bg-yellow-100 text-yellow-800';
+        
+        const uploadItem = document.createElement('div');
+        uploadItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-md';
+        uploadItem.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <div class="bg-primary/10 p-2 rounded-md">
+              <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-900">${upload.name}</p>
+              <p class="text-xs text-gray-500">${upload.type} - ${upload.port} - ${upload.date}</p>
+            </div>
+          </div>
+          <span class="px-2 py-1 text-xs font-medium ${statusClass} rounded-full">
+            ${upload.status}
+          </span>
+        `;
+        recentUploads.appendChild(uploadItem);
+      });
+      
+      lucide.createIcons();
+  
+
+    initializeRecentUploads();
+  </script>
+</body>
+{% endblock %}

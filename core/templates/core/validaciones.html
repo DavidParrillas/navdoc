@@ -1,105 +1,72 @@
 {% extends "layout.html" %}
 {% block title %}Dashboard Admin{% endblock %}
 {% block content %}
-
   <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-800">Validaciones</h1>
-        <p class="text-gray-600 mt-2">Revisa y valida los documentos pendientes de aprobación</p>
+        <p class="text-gray-600 mt-2">Revisa y valida los documentos de los puertos de El Salvador</p>
       </div>
-
-      <!-- Statistics Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-500">Pendientes</p>
-              <p class="text-2xl font-semibold mt-1 text-yellow-600">12</p>
-            </div>
-            <div class="bg-yellow-100 p-3 rounded-full">
-              <i data-lucide="clock" class="h-6 w-6 text-yellow-600"></i>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-500">Aprobados</p>
-              <p class="text-2xl font-semibold mt-1 text-green-600">45</p>
-            </div>
-            <div class="bg-green-100 p-3 rounded-full">
-              <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-500">Rechazados</p>
-              <p class="text-2xl font-semibold mt-1 text-red-600">8</p>
-            </div>
-            <div class="bg-red-100 p-3 rounded-full">
-              <i data-lucide="x-circle" class="h-6 w-6 text-red-600"></i>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-500">En Revisión</p>
-              <p class="text-2xl font-semibold mt-1 text-blue-600">6</p>
-            </div>
-            <div class="bg-blue-100 p-3 rounded-full">
-              <i data-lucide="eye" class="h-6 w-6 text-blue-600"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      
       <!-- Documents Table -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div class="px-4 py-5 sm:px-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
             <h3 class="text-lg leading-6 font-medium text-gray-900">Documentos para validar</h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Lista de documentos que requieren revisión y validación</p>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Documentos de los puertos de El Salvador que requieren revisión</p>
           </div>
-          <div class="flex space-x-3">
+          <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
               </div>
-              <input type="text" id="search" placeholder="Buscar documentos..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm">
+              <input type="text" id="search" placeholder="Buscar documentos..." class="block w-full sm:w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm">
             </div>
-            <select id="statusFilter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+            <select id="statusFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
               <option value="">Todos los estados</option>
               <option value="pending">Pendiente</option>
               <option value="in_review">En revisión</option>
               <option value="approved">Aprobado</option>
               <option value="rejected">Rechazado</option>
             </select>
-            <select id="typeFilter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+            <select id="portFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+              <option value="">Todos los puertos</option>
+              <option value="1">Puerto de La Unión</option>
+              <option value="2">Puerto de La Libertad</option>
+              <option value="3">Puerto El Triunfo</option>
+              <option value="4">Puerto de La Concordia</option>
+              <option value="5">Puerto de La Puntilla</option>
+              <option value="6">Puerto El Tamarindo</option>
+              <option value="7">Puerto El Cuco</option>
+            </select>
+            <select id="typeFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
               <option value="">Todos los tipos</option>
-              <option value="contract">Contrato</option>
-              <option value="certificate">Certificado</option>
-              <option value="report">Informe</option>
+              <option value="contrato">Contrato</option>
+              <option value="certificado">Certificado</option>
+              <option value="informe">Informe</option>
               <option value="manual">Manual</option>
+              <option value="licencia">Licencia</option>
+              <option value="permiso">Permiso</option>
             </select>
           </div>
         </div>
-        <div class="border-t border-gray-200">
+        
+        <!-- Mobile Cards View -->
+        <div class="block sm:hidden" id="mobileCards">
+          <!-- Mobile cards will be populated here -->
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="hidden sm:block border-t border-gray-200">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documento</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puerto</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subido por</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridad</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
@@ -113,8 +80,8 @@
   </main>
 
   <!-- Validation Modal -->
-  <div id="validationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+  <div id="validationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
       <div class="mt-3">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Validar Documento</h3>
@@ -122,23 +89,87 @@
             <i data-lucide="x" class="h-6 w-6"></i>
           </button>
         </div>
-        <div class="mb-4">
-          <p class="text-sm text-gray-600" id="modalDocumentName">Nombre del documento</p>
+        
+        <!-- Document Info -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Documento</label>
+              <p class="mt-1 text-sm text-gray-900" id="modalDocumentName">Nombre del documento</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Puerto</label>
+              <p class="mt-1 text-sm text-gray-900" id="modalPortName">Puerto</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Tipo</label>
+              <p class="mt-1 text-sm text-gray-900" id="modalDocumentType">Tipo</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Subido por</label>
+              <p class="mt-1 text-sm text-gray-900" id="modalUploadedBy">Usuario</p>
+            </div>
+          </div>
         </div>
-        <div class="mb-4">
-          <label for="validationComment" class="block text-sm font-medium text-gray-700 mb-2">Comentarios</label>
-          <textarea id="validationComment" rows="4" class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Añade comentarios sobre la validación..."></textarea>
+
+        <!-- Validation Form -->
+        <div class="space-y-4">
+          <div>
+            <label for="validationComment" class="block text-sm font-medium text-gray-700 mb-2">
+              Comentarios de validación <span class="text-red-500">*</span>
+            </label>
+            <textarea id="validationComment" rows="4" required class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Añade comentarios detallados sobre la validación del documento..."></textarea>
+          </div>
+          
+          <div>
+            <label for="validationPriority" class="block text-sm font-medium text-gray-700 mb-2">Prioridad de seguimiento</label>
+            <select id="validationPriority" class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+              <option value="low">Baja</option>
+              <option value="medium" selected>Media</option>
+              <option value="high">Alta</option>
+            </select>
+          </div>
+
+          <div class="flex items-center">
+            <input id="notifyUser" type="checkbox" checked class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+            <label for="notifyUser" class="ml-2 block text-sm text-gray-900">
+              Notificar al usuario por correo electrónico
+            </label>
+          </div>
         </div>
-        <div class="flex space-x-3">
-          <button type="button" onclick="validateDocument('approved')" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-gray-200">
+          <button type="button" onclick="validateDocument('approved')" class="flex-1 bg-green-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200">
             <i data-lucide="check" class="h-4 w-4 inline mr-2"></i>
-            Aprobar
+            Aprobar Documento
           </button>
-          <button type="button" onclick="validateDocument('rejected')" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+          <button type="button" onclick="validateDocument('rejected')" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200">
             <i data-lucide="x" class="h-4 w-4 inline mr-2"></i>
-            Rechazar
+            Rechazar Documento
+          </button>
+          <button type="button" onclick="validateDocument('in_review')" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+            <i data-lucide="eye" class="h-4 w-4 inline mr-2"></i>
+            Marcar en Revisión
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Preview Modal -->
+  <div id="previewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Vista Previa del Documento</h3>
+        <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closePreviewModal()">
+          <i data-lucide="x" class="h-6 w-6"></i>
+        </button>
+      </div>
+      <div class="bg-gray-100 rounded-lg p-8 text-center">
+        <i data-lucide="file-text" class="h-24 w-24 text-gray-400 mx-auto mb-4"></i>
+        <p class="text-gray-600">Vista previa del documento PDF</p>
+        <p class="text-sm text-gray-500 mt-2">En una implementación real, aquí se mostraría el contenido del PDF</p>
       </div>
     </div>
   </div>
@@ -159,69 +190,16 @@
       closeIcon.classList.toggle('hidden');
     });
 
-    // Sample documents data
-    const documents = [
-      {
-        id: 1,
-        name: 'Contrato_Puerto_Valencia.pdf',
-        type: 'contract',
-        uploadedBy: 'Juan Pérez',
-        status: 'pending',
-        date: '2024-03-20',
-        priority: 'high',
-        size: '2.4 MB'
-      },
-      {
-        id: 2,
-        name: 'Certificado_Seguridad_2024.pdf',
-        type: 'certificate',
-        uploadedBy: 'María García',
-        status: 'in_review',
-        date: '2024-03-19',
-        priority: 'medium',
-        size: '1.8 MB'
-      },
-      {
-        id: 3,
-        name: 'Informe_Operaciones_Q1.docx',
-        type: 'report',
-        uploadedBy: 'Carlos Rodríguez',
-        status: 'pending',
-        date: '2024-03-18',
-        priority: 'low',
-        size: '3.2 MB'
-      },
-      {
-        id: 4,
-        name: 'Manual_Procedimientos.pdf',
-        type: 'manual',
-        uploadedBy: 'Ana Martínez',
-        status: 'approved',
-        date: '2024-03-17',
-        priority: 'medium',
-        size: '5.1 MB'
-      },
-      {
-        id: 5,
-        name: 'Contrato_Servicios_Logisticos.pdf',
-        type: 'contract',
-        uploadedBy: 'Luis Sánchez',
-        status: 'rejected',
-        date: '2024-03-16',
-        priority: 'high',
-        size: '1.9 MB'
-      },
-      {
-        id: 6,
-        name: 'Certificado_Calidad_ISO.pdf',
-        type: 'certificate',
-        uploadedBy: 'Elena Ruiz',
-        status: 'pending',
-        date: '2024-03-15',
-        priority: 'high',
-        size: '2.7 MB'
-      }
-    ];
+    // El Salvador ports mapping
+    const ports = {
+      1: 'Puerto de La Unión',
+      2: 'Puerto de La Libertad',
+      3: 'Puerto El Triunfo',
+      4: 'Puerto de La Concordia',
+      5: 'Puerto de La Puntilla',
+      6: 'Puerto El Tamarindo',
+      7: 'Puerto El Cuco'
+    };
 
     function getStatusBadgeClass(status) {
       switch (status) {
@@ -240,14 +218,18 @@
 
     function getTypeBadgeClass(type) {
       switch (type) {
-        case 'contract':
+        case 'contrato':
           return 'bg-purple-100 text-purple-800';
-        case 'certificate':
+        case 'certificado':
           return 'bg-blue-100 text-blue-800';
-        case 'report':
+        case 'informe':
           return 'bg-green-100 text-green-800';
         case 'manual':
           return 'bg-orange-100 text-orange-800';
+        case 'licencia':
+          return 'bg-indigo-100 text-indigo-800';
+        case 'permiso':
+          return 'bg-pink-100 text-pink-800';
         default:
           return 'bg-gray-100 text-gray-800';
       }
@@ -278,10 +260,12 @@
 
     function getTypeDisplay(type) {
       const types = {
-        contract: 'Contrato',
-        certificate: 'Certificado',
-        report: 'Informe',
-        manual: 'Manual'
+        contrato: 'Contrato',
+        certificado: 'Certificado',
+        informe: 'Informe',
+        manual: 'Manual',
+        licencia: 'Licencia',
+        permiso: 'Permiso'
       };
       return types[type] || type;
     }
@@ -296,6 +280,7 @@
     }
 
     function renderDocuments(filteredDocuments = documents) {
+      // Desktop table
       const tbody = document.getElementById('documentsTableBody');
       tbody.innerHTML = filteredDocuments.map(doc => `
         <tr class="hover:bg-gray-50">
@@ -315,6 +300,7 @@
               ${getTypeDisplay(doc.type)}
             </span>
           </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ports[doc.port]}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${doc.uploadedBy}</td>
           <td class="px-6 py-4 whitespace-nowrap">
             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(doc.status)}">
@@ -329,11 +315,51 @@
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
             <div class="flex space-x-2">
-              <button onclick="viewDocument(${doc.id})" class="text-primary hover:text-primary/80">
+              <button onclick="previewDocument(${doc.id})" class="text-primary hover:text-primary/80" title="Vista previa">
                 <i data-lucide="eye" class="h-4 w-4"></i>
               </button>
-              <button onclick="downloadDocument(${doc.id})" class="text-gray-600 hover:text-gray-800">
+              <button onclick="downloadDocument(${doc.id})" class="text-gray-600 hover:text-gray-800" title="Descargar">
                 <i data-lucide="download" class="h-4 w-4"></i>
+              </button>
+              ${doc.status === 'pending' || doc.status === 'in_review' ? `
+                <button onclick="openValidationModal(${doc.id})" class="text-green-600 hover:text-green-800" title="Validar">
+                  <i data-lucide="check-square" class="h-4 w-4"></i>
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Mobile cards
+      const mobileCards = document.getElementById('mobileCards');
+      mobileCards.innerHTML = filteredDocuments.map(doc => `
+        <div class="bg-white border-b border-gray-200 p-4">
+          <div class="flex items-start justify-between">
+            <div class="flex items-start space-x-3 flex-1">
+              <div class="bg-primary/10 p-2 rounded-md">
+                <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate">${doc.name}</p>
+                <p class="text-xs text-gray-500">${doc.size} • ${ports[doc.port]}</p>
+                <div class="flex items-center space-x-2 mt-2">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadgeClass(doc.type)}">
+                    ${getTypeDisplay(doc.type)}
+                  </span>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(doc.status)}">
+                    ${getStatusDisplay(doc.status)}
+                  </span>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${getPriorityBadgeClass(doc.priority)}">
+                    ${getPriorityDisplay(doc.priority)}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Por ${doc.uploadedBy} • ${doc.date}</p>
+              </div>
+            </div>
+            <div class="flex flex-col space-y-2 ml-2">
+              <button onclick="previewDocument(${doc.id})" class="text-primary hover:text-primary/80">
+                <i data-lucide="eye" class="h-4 w-4"></i>
               </button>
               ${doc.status === 'pending' || doc.status === 'in_review' ? `
                 <button onclick="openValidationModal(${doc.id})" class="text-green-600 hover:text-green-800">
@@ -341,8 +367,8 @@
                 </button>
               ` : ''}
             </div>
-          </td>
-        </tr>
+          </div>
+        </div>
       `).join('');
       
       // Re-initialize Lucide icons for new content
@@ -353,18 +379,22 @@
     document.getElementById('search').addEventListener('input', filterDocuments);
     document.getElementById('statusFilter').addEventListener('change', filterDocuments);
     document.getElementById('typeFilter').addEventListener('change', filterDocuments);
+    document.getElementById('portFilter').addEventListener('change', filterDocuments);
 
     function filterDocuments() {
       const searchTerm = document.getElementById('search').value.toLowerCase();
       const statusFilter = document.getElementById('statusFilter').value;
       const typeFilter = document.getElementById('typeFilter').value;
+      const portFilter = document.getElementById('portFilter').value;
 
       const filteredDocuments = documents.filter(doc => {
         const matchesSearch = doc.name.toLowerCase().includes(searchTerm) || 
-                            doc.uploadedBy.toLowerCase().includes(searchTerm);
+                            doc.uploadedBy.toLowerCase().includes(searchTerm) ||
+                            ports[doc.port].toLowerCase().includes(searchTerm);
         const matchesStatus = !statusFilter || doc.status === statusFilter;
         const matchesType = !typeFilter || doc.type === typeFilter;
-        return matchesSearch && matchesStatus && matchesType;
+        const matchesPort = !portFilter || doc.port.toString() === portFilter;
+        return matchesSearch && matchesStatus && matchesType && matchesPort;
       });
 
       renderDocuments(filteredDocuments);
@@ -376,46 +406,72 @@
     function openValidationModal(documentId) {
       currentDocumentId = documentId;
       const document = documents.find(doc => doc.id === documentId);
+      
       document.getElementById('modalDocumentName').textContent = document.name;
+      document.getElementById('modalPortName').textContent = ports[document.port];
+      document.getElementById('modalDocumentType').textContent = getTypeDisplay(document.type);
+      document.getElementById('modalUploadedBy').textContent = document.uploadedBy;
       document.getElementById('validationModal').classList.remove('hidden');
+      
+      // Clear previous values
+      document.getElementById('validationComment').value = '';
+      document.getElementById('validationPriority').value = 'medium';
+      document.getElementById('notifyUser').checked = true;
     }
 
     function closeModal() {
       document.getElementById('validationModal').classList.add('hidden');
-      document.getElementById('validationComment').value = '';
       currentDocumentId = null;
+    }
+
+    function previewDocument(documentId) {
+      document.getElementById('previewModal').classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.add('hidden');
     }
 
     function validateDocument(action) {
       if (!currentDocumentId) return;
       
-      const comment = document.getElementById('validationComment').value;
+      const comment = document.getElementById('validationComment').value.trim();
+      if (!comment) {
+        alert('Por favor, añade comentarios sobre la validación.');
+        return;
+      }
+      
+      const priority = document.getElementById('validationPriority').value;
+      const notifyUser = document.getElementById('notifyUser').checked;
       const document = documents.find(doc => doc.id === currentDocumentId);
       
       if (document) {
         document.status = action;
+        document.priority = priority;
         renderDocuments();
         closeModal();
         
-        // Show success message (you can implement a toast notification here)
-        alert(`Documento ${action === 'approved' ? 'aprobado' : 'rechazado'} exitosamente`);
+        // Show success message
+        const actionText = action === 'approved' ? 'aprobado' : 
+                          action === 'rejected' ? 'rechazado' : 'marcado en revisión';
+        alert(`Documento ${actionText} exitosamente${notifyUser ? ' y usuario notificado' : ''}`);
       }
     }
 
-    function viewDocument(documentId) {
-      // Implement document viewing functionality
-      alert('Abrir documento para visualización');
-    }
-
     function downloadDocument(documentId) {
-      // Implement document download functionality
-      alert('Descargar documento');
+      alert('Descargando documento...');
     }
 
-    // Close modal when clicking outside
+    // Close modals when clicking outside
     document.getElementById('validationModal').addEventListener('click', function(e) {
       if (e.target === this) {
         closeModal();
+      }
+    });
+
+    document.getElementById('previewModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePreviewModal();
       }
     });
 

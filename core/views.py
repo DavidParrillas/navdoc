@@ -41,25 +41,7 @@ def dashboard(request):
 
 @login_required
 def cargar_documento(request):
-    if not request.user.groups.filter(name__in=["Usuarios", "Administradores"]).exists():
-        return HttpResponseForbidden("No tienes permiso para subir documentos.")
-
-    if request.method == 'POST':
-        form = DocumentoCargaForm(request.POST, request.FILES)
-    else:
-        form = DocumentoCargaForm()
-
-    # Asignar queryset aquí, de forma segura y controlada por la vista
-    from .models import Puerto
-    form.fields['puerto'].queryset = Puerto.objects.all()
-
-    if request.method == 'POST' and form.is_valid():
-        documento = form.save(commit=False)
-        documento.creado_por = request.user
-        documento.save()
-        return redirect('documentos')
-
-    return render(request, 'core/cargar_documento.html', {'form': form})
+    return render(request, 'core/cargar_documento.html',)
 
 
 # Vista: Documentos

@@ -24,7 +24,7 @@
   <script src="{% static 'core/js/auth.js' %}"></script>
 </head>
 <body class="bg-white min-h-screen">
-  <nav class="bg-primary">
+  <nav class="bg-gray-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <div class="flex items-center">
@@ -146,12 +146,22 @@
           </div>
         </div>
         <div class="mt-3 px-2 space-y-1">
-          <a href="{% url 'logout' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Cerrar sesión</a>
+          <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">
+                <span class="sr-only">Cerrar sesión</span>
+                <p class="flex items-center gap-2">
+                  <i data-lucide="log-out" class="w-4 h-4"></i>
+                  Cerrar sesión
+                </p>
+              </button>
+            </form>
         </div>
       </div>
     </div>
   </nav>
-  
+            
+
     {% block content %}
     <!-- Aquí irá el contenido de cada página -->
     {% endblock %}

@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}Dashboard Admin{% endblock %}
 {% block content %}
-<body class="bg-white min-h-screen">
 
   <main class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
@@ -47,21 +46,19 @@
         <form id="uploadForm" class="px-6 py-6 space-y-6" enctype="multipart/form-data">
           {% csrf_token %}
           
-          <!-- Document Type -->
+          <!-- Tipo de Documento -->
           <div>
             <label for="tipo" class="block text-sm font-medium text-gray-700 mb-2">
               Tipo de Documento <span class="text-red-500">*</span>
             </label>
             <select id="tipo" name="tipo" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
               <option value="">Selecciona el tipo de documento</option>
-              <option value="contrato">Contrato</option>
-              <option value="certificado">Certificado</option>
-              <option value="informe">Informe</option>
-              <option value="manual">Manual de Operaciones</option>
-              <option value="licencia">Licencia</option>
-              <option value="permiso">Permiso</option>
-              <option value="factura">Factura</option>
-              <option value="otro">Otro</option>
+              <option value="FACTURA">Factura de Desembarco</option>
+              <option value="MANIFIESTO">Manifiesto</option>
+              <option value="CERTIFICADO">Certificado de Origen</option>
+              <option value="GUIA">Guía de Carga</option>
+              <option value="INSPECCION">Informe de Inspección</option>
+              <option value="PERMISO">Permiso o Licencia Especial</option>
             </select>
           </div>
 
@@ -70,15 +67,9 @@
             <label for="puerto" class="block text-sm font-medium text-gray-700 mb-2">
               Puerto <span class="text-red-500">*</span>
             </label>
-            <select id="puerto" name="puerto" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-              <option value="">Selecciona el puerto</option>
-              <option value="1">Puerto de La Unión</option>
-              <option value="2">Puerto de La Libertad</option>
-              <option value="3">Puerto El Triunfo</option>
-              <option value="4">Puerto de La Concordia</option>
-              <option value="5">Puerto de La Puntilla</option>
-              <option value="6">Puerto El Tamarindo</option>
-              <option value="7">Puerto El Cuco</option>
+            <select id="puerto" name="puerto" required
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+              <option value="">Cargando puertos...</option>
             </select>
           </div>
 
@@ -140,67 +131,74 @@
         </form>
       </div>
 
-      <!-- Recent Uploads -->
-      <div class="mt-8 bg-white shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Documentos Recientes</h3>
-          <p class="mt-1 text-sm text-gray-600">Últimos documentos que has subido</p>
-        </div>
-        <div class="px-6 py-4">
-          <div class="space-y-3" id="recentUploads">
-            <!-- Recent uploads will be populated here -->
-          </div>
-        </div>
-      </div>
+
     </div>
   </main>
 
-  <script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-    
+
+    // Cargar puertos desde la API
+    fetch('/api/puertos/')
+      .then(response => response.json())
+      .then(data => {
+        const select = document.getElementById('puerto');
+        select.innerHTML = '<option value="">Selecciona el puerto</option>';
+        data.forEach(puerto => {
+          const option = document.createElement('option');
+          option.value = puerto.id;
+          option.textContent = puerto.nombre;
+          select.appendChild(option);
+        });
+      })
+      .catch(error => {
+        console.error('Error al cargar puertos:', error);
+        const select = document.getElementById('puerto');
+        select.innerHTML = '<option value="">Error al cargar puertos</option>';
+      });
+
+    // Menú móvil (opcional)
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
     const menuIcon = document.getElementById('menu-icon');
     const closeIcon = document.getElementById('close-icon');
-    
-    mobileMenuButton.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-      menuIcon.classList.toggle('hidden');
-      closeIcon.classList.toggle('hidden');
-    });
 
+    if (mobileMenuButton) {
+      mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        menuIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+      });
+    }
+
+    // Drag and drop
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('archivo_pdf');
     const uploadText = document.getElementById('uploadText');
     const fileInfo = document.getElementById('fileInfo');
     const fileName = document.getElementById('fileName');
     const fileSize = document.getElementById('fileSize');
-    const uploadIcon = document.getElementById('uploadIcon');
 
-    dropZone.addEventListener('dragover', (e) => {
+    dropZone.addEventListener('dragover', e => {
       e.preventDefault();
       dropZone.classList.add('border-primary', 'bg-primary/5');
     });
 
-    dropZone.addEventListener('dragleave', (e) => {
+    dropZone.addEventListener('dragleave', e => {
       e.preventDefault();
       dropZone.classList.remove('border-primary', 'bg-primary/5');
     });
 
-    dropZone.addEventListener('drop', (e) => {
+    dropZone.addEventListener('drop', e => {
       e.preventDefault();
       dropZone.classList.remove('border-primary', 'bg-primary/5');
-      
       const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        handleFileSelect(files[0]);
-      }
+      if (files.length > 0) handleFileSelect(files[0]);
     });
 
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        handleFileSelect(e.target.files[0]);
-      }
+    fileInput.addEventListener('change', e => {
+      if (e.target.files.length > 0) handleFileSelect(e.target.files[0]);
     });
 
     function handleFileSelect(file) {
@@ -208,7 +206,6 @@
         showError('Por favor, selecciona solo archivos PDF.');
         return;
       }
-
       if (file.size > 10 * 1024 * 1024) {
         showError('El archivo es demasiado grande. El tamaño máximo es 10MB.');
         return;
@@ -218,64 +215,76 @@
       fileSize.textContent = formatFileSize(file.size);
       fileInfo.classList.remove('hidden');
       uploadText.textContent = 'Cambiar archivo';
-      
+
       const dt = new DataTransfer();
       dt.items.add(file);
       fileInput.files = dt.files;
     }
 
     function formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes';
       const k = 1024;
       const sizes = ['Bytes', 'KB', 'MB', 'GB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const submitBtn = document.getElementById('submitBtn');
-      const submitText = document.getElementById('submitText');
-      const loadingIcon = document.getElementById('loadingIcon');
-      
-      submitBtn.disabled = true;
-      submitText.textContent = 'Subiendo...';
-      loadingIcon.classList.remove('hidden');
-      
-      hideMessages();
-      
-      try {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        showSuccess();
-        
-        resetForm();
-        
-        addToRecentUploads();
-        
-      } catch (error) {
-        showError('Error al subir el documento. Por favor, intenta nuevamente.');
-      } finally {
-        submitBtn.disabled = false;
-        submitText.textContent = 'Subir Documento';
-        loadingIcon.classList.add('hidden');
-      }
+    document.getElementById('fecha').valueAsDate = new Date();
+
+    document.getElementById('uploadForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const submitBtn = document.getElementById('submitBtn');
+  const submitText = document.getElementById('submitText');
+  const loadingIcon = document.getElementById('loadingIcon');
+
+  submitBtn.disabled = true;
+  submitText.textContent = 'Subiendo...';
+  loadingIcon.classList.remove('hidden');
+  hideMessages();
+
+  const form = document.getElementById('uploadForm');
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch('/api/documentos/subir/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken()
+      },
+      body: formData
     });
+
+    if (!response.ok) throw new Error('Error en la subida');
+
+    const data = await response.json();
+    showSuccess();
+    resetForm();
+    addToRecentUploads();
+  } catch (error) {
+    console.error(error);
+    showError('Ocurrió un error al subir el documento. Intenta de nuevo.');
+  } finally {
+    submitBtn.disabled = false;
+    submitText.textContent = 'Subir Documento';
+    loadingIcon.classList.add('hidden');
+  }
+});
+
+function getCSRFToken() {
+  return document.cookie.split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1];
+}
 
     function showSuccess() {
       document.getElementById('successMessage').classList.remove('hidden');
-      setTimeout(() => {
-        document.getElementById('successMessage').classList.add('hidden');
-      }, 5000);
+      setTimeout(() => document.getElementById('successMessage').classList.add('hidden'), 5000);
     }
 
     function showError(message) {
       document.getElementById('errorText').textContent = message;
       document.getElementById('errorMessage').classList.remove('hidden');
-      setTimeout(() => {
-        document.getElementById('errorMessage').classList.add('hidden');
-      }, 5000);
+      setTimeout(() => document.getElementById('errorMessage').classList.add('hidden'), 5000);
     }
 
     function hideMessages() {
@@ -295,9 +304,9 @@
       const puerto = document.getElementById('puerto').selectedOptions[0].text;
       const fecha = document.getElementById('fecha').value;
       const archivo = document.getElementById('archivo_pdf').files[0];
-      
+
       if (!archivo) return;
-      
+
       const uploadItem = document.createElement('div');
       uploadItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-md';
       uploadItem.innerHTML = `
@@ -314,49 +323,48 @@
           Pendiente
         </span>
       `;
-      
       recentUploads.insertBefore(uploadItem, recentUploads.firstChild);
-      
       lucide.createIcons();
-      
+
       while (recentUploads.children.length > 5) {
         recentUploads.removeChild(recentUploads.lastChild);
       }
     }
 
-    document.getElementById('fecha').valueAsDate = new Date();
+    // Simulación de cargas recientes (opcional)
+    const recentUploads = document.getElementById('recentUploads');
+    const sampleUploads = [
+      { name: "manifiesto_abril.pdf", type: "MANIFIESTO", port: "Puerto de La Unión", date: "2025-04-12", status: "En revisión" },
+      { name: "permiso_mayo.pdf", type: "PERMISO", port: "Puerto de La Libertad", date: "2025-05-01", status: "Aprobado" }
+    ];
 
+    sampleUploads.forEach(upload => {
+      const statusClass =
+        upload.status === 'Aprobado' ? 'bg-green-100 text-green-800' :
+        upload.status === 'En revisión' ? 'bg-blue-100 text-blue-800' :
+        'bg-yellow-100 text-yellow-800';
 
-      const recentUploads = document.getElementById('recentUploads');
-      
-      sampleUploads.forEach(upload => {
-        const statusClass = upload.status === 'Aprobado' ? 'bg-green-100 text-green-800' : 
-                           upload.status === 'En revisión' ? 'bg-blue-100 text-blue-800' : 
-                           'bg-yellow-100 text-yellow-800';
-        
-        const uploadItem = document.createElement('div');
-        uploadItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-md';
-        uploadItem.innerHTML = `
-          <div class="flex items-center space-x-3">
-            <div class="bg-primary/10 p-2 rounded-md">
-              <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-gray-900">${upload.name}</p>
-              <p class="text-xs text-gray-500">${upload.type} - ${upload.port} - ${upload.date}</p>
-            </div>
+      const uploadItem = document.createElement('div');
+      uploadItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-md';
+      uploadItem.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <div class="bg-primary/10 p-2 rounded-md">
+            <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
           </div>
-          <span class="px-2 py-1 text-xs font-medium ${statusClass} rounded-full">
-            ${upload.status}
-          </span>
-        `;
-        recentUploads.appendChild(uploadItem);
-      });
-      
-      lucide.createIcons();
-  
+          <div>
+            <p class="text-sm font-medium text-gray-900">${upload.name}</p>
+            <p class="text-xs text-gray-500">${upload.type} - ${upload.port} - ${upload.date}</p>
+          </div>
+        </div>
+        <span class="px-2 py-1 text-xs font-medium ${statusClass} rounded-full">
+          ${upload.status}
+        </span>
+      `;
+      recentUploads.appendChild(uploadItem);
+    });
 
-    initializeRecentUploads();
-  </script>
-</body>
+    lucide.createIcons();
+  });
+</script>
+
 {% endblock %}

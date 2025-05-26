@@ -19,14 +19,21 @@
     }
   </script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<body class="bg-gray-900 min-h-screen flex items-center justify-center">
+  
   <div class="max-w-md w-full mx-4">
+    <div class="text-center mb-8">
+  <!-- Logo -->
+  
+
+    <div class="bg-white py-6 px-6 shadow rounded-lg">
+      <div class="mb-4">
+    <img src="{% static 'img/logo1.png' %}" alt="Logo NavDoc" class="h-20 mx-auto">
+  </div>
     <div class="text-center mb-8">
       <h2 class="text-3xl font-bold text-gray-900">Iniciar sesión</h2>
       <p class="mt-2 text-sm text-gray-600">Ingresa tus credenciales para continuar</p>
     </div>
-
-    <div class="bg-white py-8 px-6 shadow rounded-lg">
       <form method="POST" action="{% url 'login' %}" class="space-y-6">
         {% csrf_token %}
 

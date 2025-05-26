@@ -1,14 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Modelo para los puertos donde se desembarcan 
+# Modelo para los puertos donde se desembarcan
 class Puerto(models.Model):
-    nombre = models.CharField(max_length=100)
     pais = models.CharField(max_length=100)
-    codigo = models.CharField(max_length=10, unique=True)
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=255)
+    estado = models.CharField(max_length=100)
+
 
     def __str__(self):
-        return f"{self.nombre} ({self.codigo})"
+        return f"{self.nombre}, {self.estado} ({self.pais})"
 
 # Perfil extendido del usuario
 class PerfilUsuario(models.Model):
@@ -25,6 +27,9 @@ class DocumentoCarga(models.Model):
         ('FACTURA', 'Factura de Desembarco'),
         ('MANIFIESTO', 'Manifiesto'),
         ('CERTIFICADO', 'Certificado de Origen'),
+        ('GUIA', 'Guía de Carga'),
+        ('INSPECCION', 'Informe de Inspección'),
+        ('PERMISO', 'Permiso o Licencia Especial'),
     ]
 
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)

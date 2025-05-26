@@ -20,9 +20,9 @@
           <thead class="bg-gray-50">
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ubicación</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacidad</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">País</th>
               <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
@@ -44,24 +44,32 @@
             <form id="puertoForm" class="space-y-4">
               <div>
                 <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
-                <input type="text" name="nombre" id="nombre" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                <input type="text" name="nombre" id="nombre" required
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
               </div>
+
               <div>
-                <label for="ubicacion" class="block text-sm font-medium text-gray-700">Ubicación</label>
-                <input type="text" name="ubicacion" id="ubicacion" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                <label for="pais" class="block text-sm font-medium text-gray-700">País</label>
+                <input type="text" name="pais" id="pais" required
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
               </div>
+
+              <div>
+                <label for="direccion" class="block text-sm font-medium text-gray-700">Dirección</label>
+                <input type="text" name="direccion" id="direccion" required
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+              </div>
+
               <div>
                 <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
                 <select name="estado" id="estado" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                  <option value="activo">Activo</option>
-                  <option value="inactivo">Inactivo</option>
-                  <option value="mantenimiento">En mantenimiento</option>
-                </select>
-              </div>
-              <div>
-                <label for="capacidad" class="block text-sm font-medium text-gray-700">Capacidad (toneladas)</label>
-                <input type="number" name="capacidad" id="capacidad" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-              </div>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+                <option value="En mantenimiento">En mantenimiento</option>
+              </select>
+
+</div>
+
             </form>
           </div>
         </div>
@@ -77,114 +85,134 @@
     </div>
   </div>
 
-  <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
-    
-    // Mobile menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const menuIcon = document.getElementById('menu-icon');
-    const closeIcon = document.getElementById('close-icon');
-    
-    mobileMenuButton.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-      menuIcon.classList.toggle('hidden');
-      closeIcon.classList.toggle('hidden');
-    });
+<script>
+  function getCSRFToken() {
+    return document.cookie.split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+  }
 
-    // Port management
-    let ports = JSON.parse(localStorage.getItem('ports') || '[]');
-    let currentPortId = null;
+  // Inicializar íconos Lucide
+  lucide.createIcons();
 
-    function renderPorts() {
-      const tbody = document.getElementById('puertosTableBody');
-      tbody.innerHTML = ports.map(port => `
-        <tr class="hover:bg-gray-50">
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${port.nombre}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${port.ubicacion}</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-              port.estado === 'activo' ? 'bg-green-100 text-green-800' :
-              port.estado === 'inactivo' ? 'bg-red-100 text-red-800' :
-              'bg-yellow-100 text-yellow-800'
-            }">
-              ${port.estado.charAt(0).toUpperCase() + port.estado.slice(1)}
-            </span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${port.capacidad} ton</td>
-          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <button onclick="openModal('edit', ${port.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
-              <i data-lucide="edit" class="h-5 w-5"></i>
-            </button>
-            <button onclick="deletePort(${port.id})" class="text-red-600 hover:text-red-900">
-              <i data-lucide="trash-2" class="h-5 w-5"></i>
-            </button>
-          </td>
-        </tr>
-      `).join('');
-      lucide.createIcons();
-    }
+  // Botón menú móvil
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
 
-    function openModal(mode, id = null) {
-      document.getElementById('modal').classList.remove('hidden');
-      document.getElementById('modalTitle').textContent = mode === 'create' ? 'Nuevo puerto' : 'Editar puerto';
-      
-      if (mode === 'edit' && id !== null) {
-        currentPortId = id;
-        const port = ports.find(p => p.id === id);
-        if (port) {
-          document.getElementById('nombre').value = port.nombre;
-          document.getElementById('ubicacion').value = port.ubicacion;
-          document.getElementById('estado').value = port.estado;
-          document.getElementById('capacidad').value = port.capacidad;
-        }
-      } else {
-        currentPortId = null;
-        document.getElementById('puertoForm').reset();
-      }
-    }
+  mobileMenuButton?.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+    menuIcon.classList.toggle('hidden');
+    closeIcon.classList.toggle('hidden');
+  });
 
-    function closeModal() {
-      document.getElementById('modal').classList.add('hidden');
-      document.getElementById('puertoForm').reset();
-      currentPortId = null;
-    }
+  // Manejo de puertos
+  let ports = [];
+  let currentPortId = null;
 
-    function savePort() {
-      const formData = {
-        nombre: document.getElementById('nombre').value,
-        ubicacion: document.getElementById('ubicacion').value,
-        estado: document.getElementById('estado').value,
-        capacidad: document.getElementById('capacidad').value
-      };
-
-      if (currentPortId === null) {
-        // Create new port
-        formData.id = Date.now();
-        ports.push(formData);
-      } else {
-        // Update existing port
-        const index = ports.findIndex(p => p.id === currentPortId);
-        if (index !== -1) {
-          ports[index] = { ...ports[index], ...formData };
-        }
-      }
-
-      localStorage.setItem('ports', JSON.stringify(ports));
-      renderPorts();
-      closeModal();
-    }
-
-    function deletePort(id) {
-      if (confirm('¿Estás seguro de que deseas eliminar este puerto?')) {
-        ports = ports.filter(p => p.id !== id);
-        localStorage.setItem('ports', JSON.stringify(ports));
+  function fetchPorts() {
+    fetch('/api/puertos/')
+      .then(response => response.json())
+      .then(data => {
+        ports = data;
         renderPorts();
-      }
-    }
+      });
+  }
 
-    // Initial render
-    renderPorts();
-  </script>
+  function renderPorts() {
+    const tbody = document.getElementById('puertosTableBody');
+    tbody.innerHTML = ports.map(port => `
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4 text-sm font-medium text-gray-900">${port.nombre}</td>
+        <td class="px-6 py-4 text-sm text-gray-500">${port.direccion}</td>
+        <td class="px-6 py-4 text-sm text-gray-500">${port.estado}</td>
+        <td class="px-6 py-4 text-sm text-gray-500">${port.pais}</td>
+        <td class="px-6 py-4 text-right text-sm font-medium">
+          <button onclick="openModal('edit', ${port.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
+            <i data-lucide="edit" class="h-5 w-5"></i>
+          </button>
+          <button onclick="deletePort(${port.id})" class="text-red-600 hover:text-red-900">
+            <i data-lucide="trash-2" class="h-5 w-5"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+    lucide.createIcons();
+  }
+
+  function openModal(mode, id = null) {
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('modalTitle').textContent = mode === 'create' ? 'Nuevo puerto' : 'Editar puerto';
+
+    if (mode === 'edit' && id !== null) {
+      currentPortId = id;
+      const port = ports.find(p => p.id === id);
+      if (port) {
+        document.getElementById('nombre').value = port.nombre;
+        document.getElementById('pais').value = port.pais;
+        document.getElementById('direccion').value = port.direccion;
+        document.getElementById('estado').value = port.estado;
+      }
+    } else {
+      currentPortId = null;
+      document.getElementById('puertoForm').reset();
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+    document.getElementById('puertoForm').reset();
+    currentPortId = null;
+  }
+
+  function savePort() {
+    const formData = {
+      nombre: document.getElementById('nombre').value,
+      pais: document.getElementById('pais').value,
+      direccion: document.getElementById('direccion').value,
+      estado: document.getElementById('estado').value,
+    };
+
+    const method = currentPortId === null ? 'POST' : 'PUT';
+    const url = currentPortId === null ? '/api/puertos/' : `/api/puertos/${currentPortId}/`;
+
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken()
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Error al guardar');
+      }
+      return response.json();
+    })
+    .then(data => {
+      fetchPorts();
+      closeModal();
+    })
+    .catch(error => console.error('Error:', error));
+  }
+
+  function deletePort(id) {
+    if (confirm('¿Estás seguro de que deseas eliminar este puerto?')) {
+      fetch(`/api/puertos/${id}/`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCSRFToken()
+        }
+      })
+      .then(() => fetchPorts())
+      .catch(error => console.error('Error al eliminar:', error));
+    }
+  }
+
+  // Inicializar
+  fetchPorts();
+</script>
+
 {% endblock %}

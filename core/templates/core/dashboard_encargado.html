@@ -5,43 +5,43 @@
 
   <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <h1 class="text-3xl font-bold text-gray-800 mb-6">Bienvenido/a, Encargado</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="bg-white shadow rounded-lg p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Documentos</p>
-            <p class="text-2xl font-semibold">254</p>
-          </div>
-          <div class="bg-primary/10 p-3 rounded-full">
-            <i data-lucide="file-text" class="h-6 w-6 text-primary"></i>
-          </div>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Documentos Totales</p>
+        <p class="text-2xl font-semibold mt-1">{{ total_documentos }}</p>
       </div>
-
-      <div class="bg-white shadow rounded-lg p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Puertos</p>
-            <p class="text-2xl font-semibold">35</p>
-          </div>
-          <div class="bg-primary/10 p-3 rounded-full">
-            <i data-lucide="anchor" class="h-6 w-6 text-primary"></i>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white shadow rounded-lg p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Validaciones</p>
-            <p class="text-2xl font-semibold">189</p>
-          </div>
-          <div class="bg-primary/10 p-3 rounded-full">
-            <i data-lucide="check-square" class="h-6 w-6 text-primary"></i>
-          </div>
-        </div>
+      <div class="bg-primary/10 p-3 rounded-full">
+        <i data-lucide="file-text" class="h-6 w-6 text-primary"></i>
       </div>
     </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Puertos Registrados</p>
+        <p class="text-2xl font-semibold mt-1">{{ total_puertos }}</p>
+      </div>
+      <div class="bg-primary/10 p-3 rounded-full">
+        <i data-lucide="anchor" class="h-6 w-6 text-primary"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Validaciones Completadas</p>
+        <p class="text-2xl font-semibold mt-1">{{ validaciones_completadas }}</p>
+      </div>
+      <div class="bg-primary/10 p-3 rounded-full">
+        <i data-lucide="check-circle" class="h-6 w-6 text-primary"></i>
+      </div>
+    </div>
+  </div>
+      </div>   
   </main>
 
   {% endblock %}

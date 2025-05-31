@@ -1,0 +1,491 @@
+
+{% extends "layout.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<header class="bg-white shadow-sm border-b">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center py-6">
+      <div class="flex items-center space-x-3">
+        <i data-lucide="route" class="h-8 w-8 text-primary"></i>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Gestión de Rutas</h1>
+          <p class="text-sm text-gray-600">Administración de rutas navieras del sistema</p>
+        </div>
+      </div>
+      <button id="btnOpenRutaModal" onclick="openModal('new')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors duration-300">
+        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+        Nueva Ruta
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+
+  <!-- Rutas Table -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+<table class="min-w-full divide-y divide-gray-200">
+  <thead class="bg-gray-50">
+    <tr>
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Nombre de Ruta
+      </th>
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Descripción
+      </th>
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Puertos Asignados
+      </th>
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Estado
+      </th>
+      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Acciones
+      </th>
+    </tr>
+  </thead>
+  <tbody class="bg-white divide-y divide-gray-200" id="rutasTableBody">
+    {% for ruta in rutas %}
+    <tr class="hover:bg-gray-50">
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900">{{ ruta.nombre }}</div>
+      </td>
+      <td class="px-6 py-4">
+        <div class="text-sm text-gray-900 max-w-xs truncate">{{ ruta.descripcion }}</div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900">
+          {% with puertos=ruta.puertoruta_set.all|dictsort:"orden" %}
+            {% for pr in puertos %}
+              {{ pr.puerto.nombre }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          {% endwith %}
+        </div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        {% if ruta.estado %}
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Activa</span>
+        {% else %}
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Inactiva</span>
+        {% endif %}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <button onclick="openModal('edit', '{{ ruta.id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Editar">
+          <i data-lucide="edit" class="h-5 w-5"></i>
+        </button>
+        <button onclick="deleteRuta('{{ ruta.id }}')" class="text-red-600 hover:text-red-900" title="Eliminar">
+          <i data-lucide="trash-2" class="h-5 w-5"></i>
+        </button>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5" class="text-center py-4 text-gray-500">No hay rutas registradas.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+  </div>
+</main>
+
+<!-- Create/Edit Ruta Modal -->
+<div id="rutaModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg px-4 pt-5 pb-4 overflow-hidden shadow-xl transform transition-all sm:max-w-4xl sm:w-full max-h-screen overflow-y-auto">
+    <div class="sm:flex sm:items-start">
+      <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="rutaModalTitle">Nueva Ruta</h3>
+
+<form id="rutaForm" class="space-y-6" novalidate onsubmit="event.preventDefault(); saveRuta();"> 
+  {% csrf_token %}
+  <div id="puertosInputs"></div>
+
+  <!-- Basic Information -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label for="rutaNombre" class="block text-sm font-medium text-gray-700">Nombre de Ruta *</label>
+      <input
+        type="text"
+        name="nombre"
+        id="rutaNombre"
+        required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+        placeholder="Ej: Ruta Mediterráneo Occidental"
+      />
+      <div id="nombreError" class="text-red-600 text-sm mt-1 hidden"></div>
+    </div>
+
+  </div>
+
+  <div>
+    <label for="rutaDescripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+    <textarea
+      name="descripcion"
+      id="rutaDescripcion"
+      rows="3"
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+      placeholder="Descripción breve de la ruta"
+    ></textarea>
+  </div>
+
+  <div>
+    <label for="rutaEstado" class="block text-sm font-medium text-gray-700">Estado</label>
+    <select
+      name="estado"
+      id="rutaEstado"
+      required
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+    >
+      <option value="true">Activa</option>
+      <option value="false">Inactiva</option>
+    </select>
+  </div>
+
+  <!-- Puerto Management Section -->
+  <div class="border-t pt-6">
+    <h4 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+      <i data-lucide="map-pin" class="h-5 w-5 mr-2"></i>
+      Gestión de Puertos
+    </h4>
+
+    <!-- Add Puerto Section -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+      <label for="puertoSelect" class="block text-sm font-medium text-gray-700 mb-2">
+        Agregar Puerto a la Ruta
+      </label>
+      <div class="flex space-x-3">
+        <select
+          id="puertoSelect"
+          class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+        >
+          <option value="">Seleccionar puerto</option>
+          {% for puerto in puertos %}
+            <option value="{{ puerto.id }}">{{ puerto.nombre }}</option>
+          {% endfor %}
+        </select>
+        <button
+          type="button"
+          id="btnAddPuerto"
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90"
+        >
+          <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+          Agregar
+        </button>
+      </div>
+    </div>
+
+    <!-- Assigned Puertos List -->
+    <div>
+      <h5 class="text-sm font-medium text-gray-700 mb-3">Puertos Asignados</h5>
+      <div id="assignedPuertosList" class="space-y-2">
+        <!-- Asignados dinámicamente -->
+      </div>
+      <div id="emptyPuertosState" class="text-center py-8 text-gray-500">
+        <i data-lucide="map-pin" class="h-12 w-12 mx-auto mb-4 text-gray-300"></i>
+        <p>No hay puertos asignados a esta ruta</p>
+        <p class="text-sm">Selecciona puertos del menú desplegable para agregarlos</p>
+      </div>
+      <div id="puertosError" class="text-red-600 text-sm mt-2 hidden"></div>
+    </div>
+  </div>
+
+  <div id="formError" class="text-red-600 text-sm mt-4 hidden"></div>
+
+  <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
+      <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+      Guardar
+    </button>
+    <button id="btnCancelModal" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:w-auto sm:text-sm">
+      <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+      Cancelar
+    </button>
+  </div>
+</form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Variables privadas dentro del scope
+  let assignedPuertos = [];
+  let currentRutaId = null;
+  let rutas = []; 
+
+  function fetchRutas() {
+  fetch('/api/rutas/')
+    .then(res => {
+      if (!res.ok) throw new Error('Error al cargar rutas');
+      return res.json();
+    })
+    .then(data => {
+      if (Array.isArray(data)) {
+        rutas = data;
+        renderRutas();
+      } else {
+        console.error('La respuesta no es un arreglo:', data);
+      }
+    })
+    .catch(error => {
+      console.error('fetchRutas error:', error);
+    });
+}
+
+  const rutaForm = document.getElementById('rutaForm');
+  const puertoSelect = document.getElementById('puertoSelect');
+  const btnAddPuerto = document.getElementById('btnAddPuerto');
+  const assignedPuertosList = document.getElementById('assignedPuertosList');
+  const puertosInputs = document.getElementById('puertosInputs');
+  const rutaModal = document.getElementById('rutaModal');
+  const btnCancelModal = document.getElementById('btnCancelModal');
+  const tbody = document.getElementById('rutasTableBody');
+
+
+  // Función para obtener CSRF token
+  function getCSRFToken() {
+    const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+    return cookieValue ? cookieValue.pop() : '';
+  }
+
+  // Agregar puerto a la lista asignada
+  btnAddPuerto.addEventListener('click', () => {
+    const id = puertoSelect.value;
+    const nombre = puertoSelect.options[puertoSelect.selectedIndex]?.text || '';
+
+    if (!id) {
+      alert('Seleccione un puerto');
+      return;
+    }
+    if (assignedPuertos.includes(id)) {
+      alert('Puerto ya asignado');
+      return;
+    }
+
+    assignedPuertos.push(id);
+    addPuertoToList(id, nombre);
+    renderInputs();
+  });
+
+  // Añade puerto visualmente en la lista con botón quitar
+  function addPuertoToList(id, nombre) {
+    const li = document.createElement('li');
+    li.textContent = nombre + ' ';
+    const btnRemove = document.createElement('button');
+    btnRemove.type = 'button';
+    btnRemove.textContent = 'Quitar';
+    btnRemove.classList.add('ml-2', 'text-red-600', 'hover:text-red-900');
+    btnRemove.onclick = () => {
+      assignedPuertos = assignedPuertos.filter(pid => pid !== id);
+      li.remove();
+      renderInputs();
+    };
+    li.appendChild(btnRemove);
+    assignedPuertosList.appendChild(li);
+  }
+
+  // Renderiza inputs ocultos para enviar en el form
+  function renderInputs() {
+    puertosInputs.innerHTML = '';
+    assignedPuertos.forEach(id => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'puertos[]';
+      input.value = id;
+      puertosInputs.appendChild(input);
+    });
+  }
+
+  // Limpia formulario y variables
+  function resetForm() {
+    currentRutaId = null;
+    assignedPuertos = [];
+    rutaForm.reset();
+    assignedPuertosList.innerHTML = '';
+    puertosInputs.innerHTML = '';
+  }
+
+  // Cierra modal y resetea
+  function closeModal() {
+    rutaModal.classList.add('hidden');
+    resetForm();
+  }
+
+  // Evento cancelar modal
+  btnCancelModal.addEventListener('click', closeModal);
+
+  // Función para guardar ruta (crear o editar)
+  async function saveRuta() {
+    const nombre = document.getElementById('rutaNombre').value.trim();
+    const descripcion = document.getElementById('rutaDescripcion').value.trim();
+    const estadoStr = document.getElementById('rutaEstado').value;
+    const estado = estadoStr === 'true';
+    const formError = document.getElementById('formError');
+
+    const puertos = assignedPuertos.map(id => Number(id));
+    const data = { nombre, descripcion, estado, puertos };
+
+    const method = currentRutaId === null ? 'POST' : 'PUT';
+    const url = currentRutaId === null ? '/api/rutas/' : `/api/rutas/${currentRutaId}/`;
+
+    formError.textContent = '';
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+      const errorData = await response.json();
+      formError.textContent = errorData.error || 'Error al guardar la ruta';
+      return;
+      }
+
+      alert('Ruta guardada correctamente.');
+        fetchRutas();
+        closeModal();
+      } catch (error) {
+        formError.textContent = 'Error de conexión con el servidor.';
+        console.error(error);
+    }
+  }
+
+  // Captura el submit del formulario para usar saveRuta
+  rutaForm.addEventListener('submit', event => {
+    event.preventDefault();
+    saveRuta();
+  });
+
+function openModal(mode, rutaId = null) {
+  resetForm();
+
+  if (mode === 'edit' && rutaId) {
+    currentRutaId = rutaId;
+    rutaModal.classList.remove('hidden');
+    document.getElementById('rutaModalTitle').textContent = 'Editar Ruta';
+
+    // Cargar datos vía API para rellenar formulario
+    fetch(`/api/rutas/${rutaId}/`)
+      .then(res => {
+        if (!res.ok) throw new Error('Error al cargar ruta');
+        return res.json();
+      })
+      .then(data => {
+        document.getElementById('rutaNombre').value = data.nombre || '';
+        document.getElementById('rutaDescripcion').value = data.descripcion || '';
+        document.getElementById('rutaEstado').value = data.estado ? 'true' : 'false';
+
+        assignedPuertos = [];
+        assignedPuertosList.innerHTML = '';
+        puertosInputs.innerHTML = '';
+
+        if (data.puertos && data.puertos.length) {
+          data.puertos.forEach(puerto => {
+            assignedPuertos.push(String(puerto.id));
+            addPuertoToList(String(puerto.id), puerto.nombre);
+          });
+          renderInputs();
+        }
+      })
+      .catch(err => {
+        alert(err.message);
+        closeModal();
+      });
+
+  } else {
+    currentRutaId = null;
+    rutaModal.classList.remove('hidden');
+    document.getElementById('rutaModalTitle').textContent = 'Nueva Ruta';
+  }
+}
+
+function deleteRuta(rutaId) {
+  if (!confirm('¿Estás seguro de eliminar esta ruta?')) return;
+
+  fetch(`/api/rutas/${rutaId}/`, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRFToken': getCSRFToken()
+    }
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('Error al eliminar la ruta');
+    return response.json();
+  })
+  .then(data => {
+    alert(data.mensaje || 'Ruta eliminada correctamente.');
+    fetchRutas();  
+  })
+  .catch(error => {
+    alert(error.message);
+  });
+}
+
+// Renderizar rutas en la tabla
+function renderRutas() {
+  const tbody = document.getElementById('rutasTableBody');
+
+  if (!rutas.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">No hay rutas registradas.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rutas.map(ruta => `
+    <tr class="hover:bg-gray-50">
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900">${ruta.nombre}</div>
+      </td>
+      <td class="px-6 py-4">
+        <div class="text-sm text-gray-900 max-w-xs truncate">${ruta.descripcion}</div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900">
+          ${Array.isArray(ruta.puertos) ? ruta.puertos.map(p => p.nombre).join(', ') : ''}
+        </div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          ruta.estado ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+        }">
+          ${ruta.estado ? 'Activa' : 'Inactiva'}
+        </span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <button onclick="openModal('edit', ${ruta.id})" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Editar">
+          <i data-lucide="edit" class="h-5 w-5"></i>
+        </button>
+        <button onclick="deleteRuta(${ruta.id})" class="text-red-600 hover:text-red-900" title="Eliminar">
+          <i data-lucide="trash-2" class="h-5 w-5"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+    lucide.createIcons();
+  }
+}
+
+window.openModal = openModal;
+window.deleteRuta = deleteRuta;
+window.saveRuta = saveRuta;
+window.fetchRutas = fetchRutas;
+window.closeModal = closeModal;
+
+
+});
+
+
+</script>
+
+{% endblock %}

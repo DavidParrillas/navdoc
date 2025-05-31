@@ -59,6 +59,12 @@
                 Puertos
               </a>
               {% endif %}
+              {% if user|has_group:"Administradores" %}
+              <a href="{% url 'rutas' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="anchor" class="w-4 h-4"></i>
+                Rutas
+              </a>
+              {% endif %}
               {% if user|has_any_group:"Administradores,Encargados" %}
               <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
                 <i data-lucide="check-square" class="w-4 h-4"></i>
@@ -131,6 +137,12 @@
           Puertos
         </a>
         {% endif %}
+        {% if user|has_group:"Administradores" %}
+              <a href="{% url 'rutas' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                <i data-lucide="anchor" class="w-4 h-4"></i>
+                Rutas
+              </a>
+              {% endif %}
         {% if user|has_any_group:"Administradores,Encargados" %}
         <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
           <i data-lucide="check-square" class="w-4 h-4"></i>

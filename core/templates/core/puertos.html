@@ -27,7 +27,6 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200" id="puertosTableBody">
-            <!-- Table content will be dynamically populated -->
           </tbody>
         </table>
       </div>
@@ -63,12 +62,10 @@
               <div>
                 <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
                 <select name="estado" id="estado" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-                <option value="En mantenimiento">En mantenimiento</option>
-              </select>
-
-</div>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </div>
 
             </form>
           </div>
@@ -126,7 +123,7 @@
       <tr class="hover:bg-gray-50">
         <td class="px-6 py-4 text-sm font-medium text-gray-900">${port.nombre}</td>
         <td class="px-6 py-4 text-sm text-gray-500">${port.direccion}</td>
-        <td class="px-6 py-4 text-sm text-gray-500">${port.estado}</td>
+        <td class="px-6 py-4 text-sm text-gray-500">${port.estado ? 'Activo' : 'Inactivo'}</td>
         <td class="px-6 py-4 text-sm text-gray-500">${port.pais}</td>
         <td class="px-6 py-4 text-right text-sm font-medium">
           <button onclick="openModal('edit', ${port.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
@@ -152,7 +149,7 @@
         document.getElementById('nombre').value = port.nombre;
         document.getElementById('pais').value = port.pais;
         document.getElementById('direccion').value = port.direccion;
-        document.getElementById('estado').value = port.estado;
+        document.getElementById('estado').value = port.estado ? 'true' : 'false';
       }
     } else {
       currentPortId = null;
@@ -167,36 +164,37 @@
   }
 
   function savePort() {
-    const formData = {
-      nombre: document.getElementById('nombre').value,
-      pais: document.getElementById('pais').value,
-      direccion: document.getElementById('direccion').value,
-      estado: document.getElementById('estado').value,
-    };
+  const formData = {
+    nombre: document.getElementById('nombre').value,
+    pais: document.getElementById('pais').value,
+    direccion: document.getElementById('direccion').value,
+    estado: document.getElementById('estado').value === 'true',
+  };
 
-    const method = currentPortId === null ? 'POST' : 'PUT';
-    const url = currentPortId === null ? '/api/puertos/' : `/api/puertos/${currentPortId}/`;
+  const method = currentPortId === null ? 'POST' : 'PUT';
+  const url = currentPortId === null ? '/api/puertos/' : `/api/puertos/${currentPortId}/`;
 
-    fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCSRFToken()
-      },
-      body: JSON.stringify(formData)
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Error al guardar');
-      }
-      return response.json();
-    })
-    .then(data => {
-      fetchPorts();
-      closeModal();
-    })
-    .catch(error => console.error('Error:', error));
-  }
+  fetch(url, {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(formData)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Error al guardar');
+    }
+    return response.json();
+  })
+  .then(data => {
+    fetchPorts();
+    closeModal();
+  })
+  .catch(error => console.error('Error:', error));
+}
+
 
   function deletePort(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este puerto?')) {

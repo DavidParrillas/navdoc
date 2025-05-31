@@ -6,20 +6,46 @@ class Puerto(models.Model):
     pais = models.CharField(max_length=100)
     nombre = models.CharField(max_length=100)
     direccion = models.CharField(max_length=255)
-    estado = models.CharField(max_length=100)
-
+    estado = models.BooleanField(default=True)  # True = activo, False = inactivo
 
     def __str__(self):
-        return f"{self.nombre}, {self.estado} ({self.pais})"
+        return f"{self.nombre}, {self.pais} ({'Activo' if self.estado else 'Inactivo'})"
 
-# Perfil extendido del usuario
+# Modelo para rutas de navegación
+class Ruta(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True)
+    estado = models.BooleanField(default=True)  # True = Activa, False = Inactiva
+
+
+# Modelo intermedio para relacionar puertos con rutas y mantener el orden
+class PuertoRuta(models.Model):
+    ruta = models.ForeignKey(Ruta, on_delete=models.CASCADE)
+    puerto = models.ForeignKey(Puerto, on_delete=models.CASCADE)
+    orden = models.PositiveIntegerField()  # Indica el orden del puerto en la ruta
+
+    class Meta:
+        unique_together = ('ruta', 'puerto')
+        ordering = ['orden']
+
+    def __str__(self):
+        return f"{self.ruta.nombre} - {self.puerto.nombre} (Orden {self.orden})"
+
+# Perfil extendido del usuario con rol explícito
 class PerfilUsuario(models.Model):
+    ROLES = [
+        ('ADMIN', 'Administrador'),
+        ('GESTOR', 'Gestor de Documentos'),
+        ('ENCARGADO', 'Encargado de Puerto'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     puerto_asignado = models.ForeignKey(Puerto, null=True, blank=True, on_delete=models.SET_NULL)
     cargo = models.CharField(max_length=100, blank=True)
+    rol = models.CharField(max_length=10, choices=ROLES, default='ENCARGADO')
 
     def __str__(self):
-        return f"{self.user.username} ({self.cargo})"
+        return f"{self.user.username} ({self.get_rol_display()})"
 
 # Modelo para los documentos de carga
 class DocumentoCarga(models.Model):
@@ -34,6 +60,7 @@ class DocumentoCarga(models.Model):
 
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
     puerto = models.ForeignKey(Puerto, on_delete=models.CASCADE)
+    ruta = models.ForeignKey(Ruta, on_delete=models.CASCADE, null=True, blank=True)
     fecha = models.DateField()
     archivo_pdf = models.FileField(upload_to='documentos/')
     observaciones = models.TextField(blank=True)
@@ -55,6 +82,9 @@ class Validacion(models.Model):
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES)
     comentario = models.TextField(blank=True)
     fecha_validacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('documento', 'usuario')
 
     def __str__(self):
         return f"{self.documento} - {self.estado} por {self.usuario.username}"

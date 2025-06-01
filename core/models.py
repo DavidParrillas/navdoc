@@ -59,15 +59,13 @@ class DocumentoCarga(models.Model):
     ]
 
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
-    puerto = models.ForeignKey(Puerto, on_delete=models.CASCADE)
-    ruta = models.ForeignKey(Ruta, on_delete=models.CASCADE, null=True, blank=True)
+    PuertoRuta = models.ForeignKey(PuertoRuta, on_delete=models.CASCADE)
     fecha = models.DateField()
     archivo_pdf = models.FileField(upload_to='documentos/')
-    observaciones = models.TextField(blank=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return f"{self.tipo} - {self.puerto.nombre} - {self.fecha}"
+        return f"{self.tipo} - {self.PuertoRuta.puerto.nombre} - {self.fecha}"
 
 # Validación de los documentos por los encargados del puerto
 class Validacion(models.Model):

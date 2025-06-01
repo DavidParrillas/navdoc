@@ -2,22 +2,23 @@
 {% extends "layout.html" %}
 {% block title %}Dashboard Admin{% endblock %}
 {% block content %}
+{% load permissions %}
 
 <!-- Header -->
 <header class="bg-white shadow-sm border-b">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center py-6">
       <div class="flex items-center space-x-3">
-        <i data-lucide="route" class="h-8 w-8 text-primary"></i>
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Gestión de Rutas</h1>
-          <p class="text-sm text-gray-600">Administración de rutas navieras del sistema</p>
+          <h1 class="text-2xl font-bold text-gray-900">Rutas</h1>
         </div>
       </div>
+      {% if user|has_group:"Administradores" %}
       <button id="btnOpenRutaModal" onclick="openModal('new')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors duration-300">
         <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
         Nueva Ruta
       </button>
+      {% endif %}
     </div>
   </div>
 </header>
@@ -42,9 +43,11 @@
       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
         Estado
       </th>
+      {% if user|has_group:"Administradores" %}
       <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
         Acciones
       </th>
+      {% endif %}
     </tr>
   </thead>
   <tbody class="bg-white divide-y divide-gray-200" id="rutasTableBody">
@@ -72,6 +75,7 @@
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Inactiva</span>
         {% endif %}
       </td>
+      {% if user|has_group:"Administradores" %}
       <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <button onclick="openModal('edit', '{{ ruta.id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Editar">
           <i data-lucide="edit" class="h-5 w-5"></i>
@@ -80,6 +84,7 @@
           <i data-lucide="trash-2" class="h-5 w-5"></i>
         </button>
       </td>
+      {% endif %}
     </tr>
     {% empty %}
     <tr>
@@ -352,8 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       alert('Ruta guardada correctamente.');
-        fetchRutas();
-        closeModal();
+        location.reload();
       } catch (error) {
         formError.textContent = 'Error de conexión con el servidor.';
         console.error(error);

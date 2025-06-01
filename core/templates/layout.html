@@ -59,9 +59,9 @@
                 Puertos
               </a>
               {% endif %}
-              {% if user|has_group:"Administradores" %}
+              {% if user|has_any_group:"Administradores,Usuario" %}
               <a href="{% url 'rutas' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
-                <i data-lucide="anchor" class="w-4 h-4"></i>
+                <i data-lucide="compass" class="w-4 h-4"></i>
                 Rutas
               </a>
               {% endif %}

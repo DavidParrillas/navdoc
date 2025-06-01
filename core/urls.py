@@ -14,7 +14,6 @@ urlpatterns = [
     path('puertos/', views.vista_puertos, name='puertos'),
     path('usuarios/', views.listar_usuarios, name='usuarios'),
     path('validaciones/', views.ver_validaciones, name='validaciones'),
-    #path('rutas/', views.lista_rutas_html, name='rutas'),  # Vista HTML para rutas
 
     # API Puertos
     path('api/puertos/', views.puertos_api, name='puertos_api'),
@@ -27,4 +26,6 @@ urlpatterns = [
     path('api/rutas/', views.rutas_api, name='rutas_api'),
     path('api/rutas/<int:id>/', views.detalle_ruta, name='detalle_ruta'),
     path('rutas/', views.rutas_view, name='rutas'),
+
+    
 ]

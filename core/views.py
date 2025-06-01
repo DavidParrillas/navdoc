@@ -117,27 +117,17 @@ def puerto_detalle(request, id):
         return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
-# ---------- API Rutas ----------
 @csrf_exempt
 @login_required
-@grupo_requerido('Administradores')
+@grupo_requerido('Administradores', 'Usuario')
 def rutas_api(request):
     if request.method == 'GET':
-        rutas = []
-        # Queremos devolver también los puertos asignados para cada ruta
-        rutas_db = Ruta.objects.all()
-        for ruta in rutas_db:
-            puertos = PuertoRuta.objects.filter(ruta=ruta).order_by('orden')
-            rutas.append({
-                'id': ruta.id,
-                'nombre': ruta.nombre,
-                'descripcion': ruta.descripcion,
-                'estado': ruta.estado,
-                'puertos': [{'id': pr.puerto.id, 'nombre': pr.puerto.nombre} for pr in puertos]
-            })
+        rutas_db = Ruta.objects.filter(estado=True)  # solo activas
+        rutas = [{'id': ruta.id, 'nombre': ruta.nombre} for ruta in rutas_db]
         return JsonResponse(rutas, safe=False)
 
     elif request.method == 'POST':
+        # tu código actual para crear rutas
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
@@ -155,7 +145,6 @@ def rutas_api(request):
 
         try:
             ruta = Ruta.objects.create(nombre=nombre, descripcion=descripcion)
-            # Guardar puertos asignados con orden
             for orden, pid in enumerate(puertos_ids, start=1):
                 puerto = Puerto.objects.filter(id=pid).first()
                 if puerto:
@@ -243,25 +232,26 @@ def lista_rutas(request):
 def subir_documento_api(request):
     if request.method == 'POST':
         tipo = request.POST.get('tipo')
-        puerto_id = request.POST.get('puerto')
+        ruta_id = request.POST.get('ruta')  # id de la ruta seleccionada
         fecha = request.POST.get('fecha')
-        observaciones = request.POST.get('observaciones', '')
         archivo = request.FILES.get('archivo_pdf')
 
-        if not all([tipo, puerto_id, fecha, archivo]):
+        if not all([tipo, ruta_id, fecha, archivo]):
             return JsonResponse({'error': 'Datos incompletos.'}, status=400)
 
         try:
-            puerto = Puerto.objects.get(id=puerto_id)
-        except Puerto.DoesNotExist:
-            return JsonResponse({'error': 'Puerto no válido.'}, status=404)
+            ruta = Ruta.objects.get(id=ruta_id)
+            puerto_ruta = PuertoRuta.objects.filter(ruta=ruta).order_by('orden').first()
+            if not puerto_ruta:
+                return JsonResponse({'error': 'La ruta no tiene puertos asignados.'}, status=400)
+        except Ruta.DoesNotExist:
+            return JsonResponse({'error': 'Ruta no válida.'}, status=404)
 
         DocumentoCarga.objects.create(
             tipo=tipo,
-            puerto=puerto,
+            PuertoRuta=puerto_ruta,
             fecha=fecha,
             archivo_pdf=archivo,
-            observaciones=observaciones,
             creado_por=request.user
         )
         return JsonResponse({'mensaje': 'Documento guardado exitosamente'})
@@ -271,7 +261,7 @@ def subir_documento_api(request):
 
 # ---------- Vista para renderizar rutas y puertos para frontend ----------
 @login_required
-@grupo_requerido('Administradores')
+@grupo_requerido('Administradores', 'Usuario')
 def rutas_view(request):
     puertos = Puerto.objects.filter(estado=True)
     rutas = Ruta.objects.all().prefetch_related('puertoruta_set__puerto')
@@ -281,10 +271,6 @@ def rutas_view(request):
         descripcion = request.POST.get('descripcion')
         estado = request.POST.get('estado') == 'true'
         puertos_ids = request.POST.getlist('puertos[]')
-
-        if not nombre or not codigo:
-            messages.error(request, "Nombre y código son obligatorios.")
-            return redirect('rutas')
 
         with transaction.atomic():
             ruta = Ruta.objects.create(
@@ -328,7 +314,13 @@ def ver_validaciones(request):
 @login_required
 @grupo_requerido('Administradores', 'Usuario')
 def cargar_documento(request):
-    return render(request, 'core/cargar_documento.html')
+    rutas = PuertoRuta.objects.select_related('ruta', 'puerto').order_by('ruta__nombre', 'orden')
+    documentos = DocumentoCarga.objects.filter(creado_por=request.user).order_by('-fecha')[:5]  # últimos 5 docs del usuario
+
+    return render(request, 'core/cargar_documento.html', {
+        'rutas': rutas,
+        'documentos': documentos,
+    })
 
 
 @login_required

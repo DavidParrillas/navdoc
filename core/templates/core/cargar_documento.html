@@ -337,34 +337,8 @@ fetch('/api/rutas/')
   }
 });
 
-  function deleteDocument(docId) {
-    if (confirm("¿Estás seguro de que deseas eliminar este documento?")) {
-      fetch(`/api/documentos/eliminar/${docId}/`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRFToken': getCSRFToken()
-        }
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('Error al eliminar el documento');
-        
-        // Eliminar el documento del DOM
-        const documentElement = document.querySelector(`#document-${docId}`);
-        if (documentElement) {
-          documentElement.remove();
-        }
-        alert('Documento eliminado exitosamente');
-      })
-      .catch(error => {
-        console.error(error);
-        alert('Ocurrió un error al eliminar el documento. Intenta de nuevo.');
-      });
-    }
-  }
   // Inicializar Lucide icons
   lucide.createIcons();
-
-
 
 </script>
 

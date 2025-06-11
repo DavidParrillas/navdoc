@@ -116,27 +116,29 @@
           </div>
         </form>
 
-        <div id="uploadedDocuments" class="mt-6 space-y-4 px-6 py-4">
-          {% for doc in documentos %}
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md shadow-sm margin">
-              <div class="flex items-center space-x-3">
-                <div class="bg-primary/10 p-2 rounded-md">
-                  <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
+          <!-- Document Upload Section -->
+          <div id="uploadedDocuments" class="mt-6 space-y-4 px-6 py-4">
+            {% for doc in documentos %}
+              <div id="document-{{ doc.id }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-md shadow-sm margin">
+                <div class="flex items-center space-x-3">
+                  <div class="bg-primary/10 p-2 rounded-md">
+                    <i data-lucide="file-text" class="h-5 w-5 text-primary"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900">{{ doc.archivo_pdf.name|slice:"10:" }}</p>
+                    <p class="text-xs text-gray-500">{{ doc.get_tipo_display }} - {{ doc.PuertoRuta.ruta.nombre }} - {{ doc.fecha }}</p>
+                  </div>
                 </div>
-                <div>
-                  <p class="text-sm font-medium text-gray-900">{{ doc.archivo_pdf.name|slice:"10:" }}</p>
-                  <p class="text-xs text-gray-500">{{ doc.get_tipo_display }} - {{ doc.PuertoRuta.ruta.nombre }} - {{ doc.fecha }}</p>
-                </div>
+                <!-- Botón de eliminar -->
+                <button type="button" class="px-4 py-2 text-xs font-medium bg-red-100 text-red-800 rounded-full" onclick="deleteDocument('{{ doc.id }}')">
+                  Eliminar
+                </button>
               </div>
-              <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
-                Pendiente
-              </span>
-            </div>
-          {% empty %}
-            <p class="text-gray-500 text-sm">No hay documentos subidos aún.</p>
-          {% endfor %}
+            {% empty %}
+              <p class="text-gray-500 text-sm">No hay documentos subidos aún.</p>
+            {% endfor %}
+          </div>
         </div>
-
       </div> 
     </div>
   </main>
@@ -163,9 +165,6 @@ fetch('/api/rutas/')
     const rutaSelect = document.getElementById('ruta');
     rutaSelect.innerHTML = '<option value="">Error al cargar rutas</option>';
   });
-
-
-
 
   // Variables para drag & drop y mostrar info archivo
   const dropZone = document.getElementById('dropZone');
@@ -337,6 +336,7 @@ fetch('/api/rutas/')
     lucide.createIcons();
   }
 });
+
   // Inicializar Lucide icons
   lucide.createIcons();
 

@@ -1,3 +1,5 @@
+import os
+from django.dispatch import receiver
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib.auth import authenticate, login  
@@ -319,8 +321,7 @@ def subir_documento_api(request):
         return JsonResponse({'mensaje': 'Documento guardado exitosamente'})
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-
+        
 # ---------- Vista para renderizar rutas y puertos para frontend ----------
 @login_required
 @grupo_requerido('Administradores', 'Usuario')

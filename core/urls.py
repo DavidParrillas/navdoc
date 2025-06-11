@@ -10,11 +10,12 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('documentos/', views.vista_documentos, name='documentos'),
+    path('documentos/', views.lista_documentos, name='documentos'),
     path('documentos/cargar/', views.cargar_documento, name='cargar_documento'),
     path('puertos/', views.vista_puertos, name='puertos'),
     path('usuarios/', views.listar_usuarios, name='usuarios'),
     path('validaciones/', views.lista_validaciones, name='validaciones'),
+    path('buscar-documentos/', views.buscar_documentos, name='buscar_documentos'),
 
     # API Puertos
     path('api/puertos/', views.puertos_api, name='puertos_api'),

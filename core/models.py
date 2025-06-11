@@ -82,6 +82,7 @@ class Validacion(models.Model):
     comentario = models.TextField(blank=True)
     fecha_validacion = models.DateTimeField(auto_now_add=True)
 
+
     class Meta:
         unique_together = ('documento', 'usuario')
 

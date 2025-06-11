@@ -10,6 +10,8 @@ import json
 from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
+from django.views.decorators.http import require_GET
+
 
 from .models import DocumentoCarga, Puerto, Validacion, Ruta, PuertoRuta
 from django.contrib.auth.models import User
@@ -30,7 +32,7 @@ def dashboard(request):
         'total_documentos': DocumentoCarga.objects.count(),
         'usuarios_activos': User.objects.filter(is_active=True).count(),
         'total_puertos': Puerto.objects.count(),
-        'validaciones_completadas': Validacion.objects.filter(estado='VALIDO').count()
+        'validaciones_completadas': Validacion.objects.filter(estado='Valido').count()
     }
 
     if user.groups.filter(name="Administradores").exists():
@@ -257,7 +259,7 @@ def lista_validaciones(request):
     return render(request, 'core/validaciones.html', {'validaciones': data})
 
 
-#Actualizar estados
+#Actualizar estados en la vista de validaciones
 @csrf_exempt
 def actualizar_estado(request, pk):
     if request.method == 'POST':
@@ -315,13 +317,81 @@ def subir_documento_api(request):
         Validacion.objects.create(
             documento=documento,
             usuario=request.user,
-            estado='PENDIENTE',  
+            estado='Pendiente',  
             comentario='Validación inicial generada automáticamente'
         )
         return JsonResponse({'mensaje': 'Documento guardado exitosamente'})
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-        
+
+#-------------Vista de documentos renderizado------------------
+@login_required
+@grupo_requerido('Administradores', 'Encargados')
+def lista_documentos(request):
+    tipo_filtro = request.GET.get('tipo', '')
+    estado_filtro = request.GET.get('estado', '')
+    puerto_filtro = request.GET.get('puerto', '')
+    documentos_raw = DocumentoCarga.objects.select_related('PuertoRuta__puerto', 'PuertoRuta__ruta', 'creado_por').all().order_by('-fecha')
+    puertos_existentes = Puerto.objects.values_list('id', 'nombre').distinct()
+
+    if puerto_filtro:
+        documentos_raw = documentos_raw.filter(PuertoRuta__puerto__id=puerto_filtro)
+
+
+    if tipo_filtro:
+        documentos_raw = documentos_raw.filter(tipo=tipo_filtro)  
+
+    documentos_raw = documentos_raw.order_by('-fecha').all()
+
+    tipos_existentes = DocumentoCarga.objects.values_list('tipo', flat=True).distinct()
+    documentos = []
+    for doc in documentos_raw:
+        ultima_validacion = doc.validacion_set.last()
+        estado = ultima_validacion.estado if ultima_validacion else ''
+        estado_display = ultima_validacion.get_estado_display() if ultima_validacion else 'N/A'
+
+        if estado_filtro and estado != estado_filtro:
+            continue
+
+        documentos.append({
+            'id': doc.id,
+            'nombre': doc.archivo_pdf.name.split('/')[-1] if doc.archivo_pdf else 'Sin nombre',
+            'url': doc.archivo_pdf.url if doc.archivo_pdf else '#',
+            'tipo': doc.get_tipo_display(),
+            'puerto': doc.PuertoRuta.puerto.nombre,
+            'ruta': doc.PuertoRuta.ruta.nombre,
+            'fecha': doc.fecha,
+            'creado_por': doc.creado_por.username,
+            'estado': doc.validacion_set.last().get_estado_display() if doc.validacion_set.last() else 'N/A'
+        })
+    return render(request, 'core/documentos.html', {
+        'documentos': documentos,
+        'tipos_existentes': tipos_existentes,
+        'tipo_seleccionado': tipo_filtro,
+        'estado_seleccionado': estado_filtro,
+        'puertos_existentes': puertos_existentes,
+        'puerto_seleccionado': puerto_filtro
+    })
+
+#-----------Funcion para buscar documentos en la vista documentos-------
+@login_required
+@grupo_requerido('Administradores', 'Encargados')
+@require_GET
+def buscar_documentos(request):
+    query = request.GET.get('q', '')
+    resultados = []
+
+    if query:
+        documentos = DocumentoCarga.objects.filter(archivo_pdf__icontains=query)[:10]
+        for doc in documentos:
+            resultados.append({
+                'id': doc.id,
+                'nombre': doc.archivo_pdf.name.split('/')[-1],
+                'url': doc.archivo_pdf.url,
+            })
+
+    return JsonResponse({'resultados': resultados})
+
 # ---------- Vista para renderizar rutas y puertos para frontend ----------
 @login_required
 @grupo_requerido('Administradores', 'Usuario')

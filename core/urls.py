@@ -2,6 +2,7 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
 from . import views
+print('urls.py cargado')
 
 urlpatterns = [
     # Páginas principales (HTML)
@@ -13,7 +14,7 @@ urlpatterns = [
     path('documentos/cargar/', views.cargar_documento, name='cargar_documento'),
     path('puertos/', views.vista_puertos, name='puertos'),
     path('usuarios/', views.listar_usuarios, name='usuarios'),
-    path('validaciones/', views.ver_validaciones, name='validaciones'),
+    path('validaciones/', views.lista_validaciones, name='validaciones'),
 
     # API Puertos
     path('api/puertos/', views.puertos_api, name='puertos_api'),
@@ -26,6 +27,10 @@ urlpatterns = [
     path('api/rutas/', views.rutas_api, name='rutas_api'),
     path('api/rutas/<int:id>/', views.detalle_ruta, name='detalle_ruta'),
     path('rutas/', views.rutas_view, name='rutas'),
+
+    #Actualizar estados
+    path('validaciones/actualizar_estado/<int:pk>/', views.actualizar_estado, name='actualizar_estado'),
+
 
     
 ]

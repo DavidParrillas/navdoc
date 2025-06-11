@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 
 from .models import DocumentoCarga, Puerto, Validacion, Ruta, PuertoRuta
 from django.contrib.auth.models import User
@@ -224,6 +225,60 @@ def lista_rutas(request):
         })
     return render(request, 'core/lista_rutas.html', {'rutas_con_puertos': rutas_con_puertos})
 
+#-----------------Vista de validaciones--------------------
+@login_required
+@grupo_requerido('Administradores', 'Encargados')
+def lista_validaciones(request):
+    validaciones = Validacion.objects.select_related(
+        'documento__PuertoRuta__puerto',
+        'documento__PuertoRuta__ruta',
+        'usuario',
+        'documento'
+    )
+
+    data = []
+    for val in validaciones:
+        doc = val.documento
+        puerto_ruta = doc.PuertoRuta
+        data.append({
+            'id': val.id,
+            'tipo': doc.get_tipo_display(),
+            'ruta': puerto_ruta.ruta.nombre,
+            'puerto': puerto_ruta.puerto.nombre,
+            'usuario': val.usuario.username,
+            'estado': val.get_estado_display(),
+            'fecha': val.fecha_validacion.strftime('%Y-%m-%d %H:%M'),
+            'archivo_url': doc.archivo_pdf.url if doc.archivo_pdf else '#',
+            'archivo_nombre': doc.archivo_pdf.name.split('/')[-1] if doc.archivo_pdf else 'Sin archivo',
+            'comentario': val.comentario or '-'
+        })
+    return render(request, 'core/validaciones.html', {'validaciones': data})
+
+
+#Actualizar estados
+@csrf_exempt
+def actualizar_estado(request, pk):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)  
+            print("POST recibido:", data)
+            estado = data.get('estado')
+            comentario = data.get('comentario')
+            print("Estado recibido:", estado)
+
+            if not estado:
+                return JsonResponse({'error': 'Estado es requerido'}, status=400)
+
+            validacion = Validacion.objects.get(pk=pk)
+            validacion.estado = estado
+            validacion.comentario = comentario
+            validacion.save()
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            print("Error:", str(e))
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 
 # ---------- Subir documento ----------
 @login_required
@@ -247,12 +302,19 @@ def subir_documento_api(request):
         except Ruta.DoesNotExist:
             return JsonResponse({'error': 'Ruta no válida.'}, status=404)
 
-        DocumentoCarga.objects.create(
+        documento = DocumentoCarga.objects.create(
             tipo=tipo,
             PuertoRuta=puerto_ruta,
             fecha=fecha,
             archivo_pdf=archivo,
             creado_por=request.user
+        )
+
+        Validacion.objects.create(
+            documento=documento,
+            usuario=request.user,
+            estado='PENDIENTE',  
+            comentario='Validación inicial generada automáticamente'
         )
         return JsonResponse({'mensaje': 'Documento guardado exitosamente'})
 

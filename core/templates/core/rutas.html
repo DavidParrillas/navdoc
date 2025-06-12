@@ -63,7 +63,7 @@
         <div class="text-sm text-gray-900">
           {% with puertos=ruta.puertoruta_set.all|dictsort:"orden" %}
             {% for pr in puertos %}
-              {{ pr.puerto.nombre }}{% if not forloop.last %}, {% endif %}
+              {{ pr.orden }}- {{ pr.puerto.nombre }}<br>
             {% endfor %}
           {% endwith %}
         </div>
@@ -187,11 +187,6 @@
       <h5 class="text-sm font-medium text-gray-700 mb-3">Puertos Asignados</h5>
       <div id="assignedPuertosList" class="space-y-2">
         <!-- Asignados dinámicamente -->
-      </div>
-      <div id="emptyPuertosState" class="text-center py-8 text-gray-500">
-        <i data-lucide="map-pin" class="h-12 w-12 mx-auto mb-4 text-gray-300"></i>
-        <p>No hay puertos asignados a esta ruta</p>
-        <p class="text-sm">Selecciona puertos del menú desplegable para agregarlos</p>
       </div>
       <div id="puertosError" class="text-red-600 text-sm mt-2 hidden"></div>
     </div>

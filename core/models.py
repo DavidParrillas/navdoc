@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -80,6 +81,7 @@ class Validacion(models.Model):
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES)
     comentario = models.TextField(blank=True)
     fecha_validacion = models.DateTimeField(auto_now_add=True)
+
 
     class Meta:
         unique_together = ('documento', 'usuario')

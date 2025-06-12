@@ -63,7 +63,7 @@
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documento</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puerto</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ruta</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subido por</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
@@ -71,7 +71,120 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200" id="documentsTableBody">
-              <!-- Table content will be dynamically populated -->
+              {% for val in validaciones %}
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <a href="{{ val.archivo_url }}" target="_blank" style="color: blue; text-decoration: underline;">{{ val.archivo_nombre }}</a>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ val.tipo }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ val.ruta }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ val.usuario }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {% if val.estado == "Pendiente" %}
+                      <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                        Pendiente
+                      </span>
+                    {% elif val.estado == "Valido" %}
+                      <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                        Valido
+                      </span>
+                    {% elif val.estado == "Rechazado" %}
+                      <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                        Rechazado
+                      </span>
+                    {% else %}
+                      {{ val.estado }}
+                    {% endif %}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ val.fecha }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 space-x-2">
+                    {% if val.estado == "Pendiente" %}
+                      <button onclick="openValidationModal('{{ val.id }}', '{{ val.archivo_nombre|escapejs }}', '{{ val.ruta|escapejs }}', '{{ val.tipo|escapejs }}', '{{ val.usuario|escapejs }}')" 
+                              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium">
+                        Gestionar
+                      </button>
+                    {% else %}
+                      <span class="text-gray-500 text-xs italic">Sin acciones</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+              <script>
+                let currentValidationId = null;
+                let currentAction = null;
+
+                function openValidationModal(id, nombre, puerto, tipo, usuario, esRechazo = false) {
+                  currentValidationId = id;
+                  currentAction = esRechazo ? 'rechazado' : 'valido';
+
+                  document.getElementById('modalDocumentName').textContent = nombre;
+                  document.getElementById('modalPortName').textContent = puerto;
+                  document.getElementById('modalDocumentType').textContent = tipo;
+                  document.getElementById('modalUploadedBy').textContent = usuario;
+                  document.getElementById('modalTitle').textContent = esRechazo ? 'Rechazar Documento' : 'Validar Documento';
+
+                  document.getElementById('validationModal').classList.remove('hidden');
+                }
+
+                function closeModal() {
+                  document.getElementById('validationModal').classList.add('hidden');
+                  document.getElementById('validationComment').value = '';
+                  currentValidationId = null;
+                  currentAction = null;
+                }
+
+                function validateDocument(overrideStatus = null) {
+                  const comment = document.getElementById('validationComment').value.trim();
+                  if (!comment) {
+                    alert('Por favor, añade un comentario de validación.');
+                    return;
+                  }
+
+                  if (!currentValidationId) {
+                    alert('No se ha seleccionado ningún documento.');
+                    return;
+                  }
+
+                  const estado = overrideStatus || currentAction;
+
+                  fetch(`/validaciones/actualizar_estado/${currentValidationId}/`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({
+                      estado: estado,
+                      comentario: comment,
+                    }),
+                  })
+                  .then(response => {
+                    if (response.ok) {
+                      alert('Validación actualizada correctamente.');
+                      closeModal();
+                      location.reload();
+                    } else {
+                      alert('Error al actualizar la validación.');
+                    }
+                  });
+                }
+
+                function getCookie(name) {
+                  let cookieValue = null;
+                  if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                      const cookie = cookies[i].trim();
+                      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                      }
+                    }
+                  }
+                  return cookieValue;
+                }
+              </script>
+
             </tbody>
           </table>
         </div>
@@ -140,15 +253,15 @@
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-gray-200">
-          <button type="button" onclick="validateDocument('approved')" class="flex-1 bg-green-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200">
+          <button type="button" onclick="validateDocument('Valido')" class="flex-1 bg-green-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200">
             <i data-lucide="check" class="h-4 w-4 inline mr-2"></i>
             Aprobar Documento
           </button>
-          <button type="button" onclick="validateDocument('rejected')" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200">
+          <button type="button" onclick="validateDocument('Rechazado')" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200">
             <i data-lucide="x" class="h-4 w-4 inline mr-2"></i>
             Rechazar Documento
           </button>
-          <button type="button" onclick="validateDocument('in_review')" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+          <button type="button" onclick="validateDocument('Pendiente')" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
             <i data-lucide="eye" class="h-4 w-4 inline mr-2"></i>
             Marcar en Revisión
           </button>

@@ -2,6 +2,7 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
 from . import views
+print('urls.py cargado')
 
 urlpatterns = [
     # Páginas principales (HTML)
@@ -9,12 +10,14 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('documentos/', views.vista_documentos, name='documentos'),
+    path('documentos/', views.lista_documentos, name='documentos'),
     path('documentos/cargar/', views.cargar_documento, name='cargar_documento'),
     path('puertos/', views.vista_puertos, name='puertos'),
     path('usuarios/', views.listar_usuarios, name='usuarios'),
     path('usuarios/crear/', views.crear_usuario, name='crear_usuario'),
     path('validaciones/', views.ver_validaciones, name='validaciones'),
+    path('validaciones/', views.lista_validaciones, name='validaciones'),
+    path('buscar-documentos/', views.buscar_documentos, name='buscar_documentos'),
 
     # API Puertos
     path('api/puertos/', views.puertos_api, name='puertos_api'),
@@ -27,6 +30,10 @@ urlpatterns = [
     path('api/rutas/', views.rutas_api, name='rutas_api'),
     path('api/rutas/<int:id>/', views.detalle_ruta, name='detalle_ruta'),
     path('rutas/', views.rutas_view, name='rutas'),
+
+    #Actualizar estados
+    path('validaciones/actualizar_estado/<int:pk>/', views.actualizar_estado, name='actualizar_estado'),
+
 
     
 ]

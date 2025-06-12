@@ -151,6 +151,8 @@
                     {% endif %}
                   </td>
                 </tr>
+                {% empty %}
+              <tr><td colspan="7" class="text-center py-4">No hay registros.</td></tr>
               {% endfor %}
               <script>
                 document.getElementById('search').addEventListener('input', function () {

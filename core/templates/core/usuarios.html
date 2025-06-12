@@ -282,15 +282,21 @@
 </script>
 
 <script>
-function abrirModalEditar(id, username, email, role, isActive) {
-  document.getElementById("modalEditar").classList.remove("hidden");
+function abrirModalEditar(button) {
+  const userId = button.dataset.userId;
+  const username = button.dataset.username;
+  const email = button.dataset.email;
+  const role = button.dataset.role;
+  const isActive = button.dataset.active === "true";
 
   document.getElementById("editarUsuario").value = username;
   document.getElementById("editarEmail").value = email;
   document.getElementById("editarRol").value = role;
   document.getElementById("editarEstado").value = isActive ? "true" : "false";
 
-  document.getElementById("editarUsuarioForm").action = `/ruta/para/editar/${id}/`;
+  document.getElementById("editarUsuarioForm").action = `/usuarios/editar/${userId}/`;
+
+  document.getElementById("modalEditar").classList.remove("hidden");
 }
 
 function cerrarModalEditar() {

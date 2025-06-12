@@ -33,40 +33,75 @@
           </div>
           <div class="hidden md:block">
             <div class="ml-10 flex items-baseline space-x-4">
-              <a href="{% url 'dashboard' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white flex items-center gap-2" aria-current="page">
+              <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}
+                bg-white text-primary
+                {% else %}
+                bg-gray-900 text-white hover:bg-gray-700
+                {% endif %}
+                rounded-md px-3 py-2 text-sm font-medium flex items-center gap-2" aria-current="page">
                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                 Inicio
               </a>
-              <a href="{% url 'documentos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+              <a href="{% url 'documentos' %}" class="{% if request.resolver_match.url_name == 'documentos' %}
+                bg-white text-primary
+                {% else %}
+                bg-gray-900 text-white hover:bg-gray-700
+                {% endif %}
+                rounded-md px-3 py-2 text-sm font-medium flex items-center gap-2">
                 <i data-lucide="file-text" class="w-4 h-4"></i>
                 Documentos
               </a>
               {% if user|has_any_group:"Administradores,Usuario" %}
-              <a href="{% url 'cargar_documento' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+              <a href="{% url 'cargar_documento' %}" class="{% if request.resolver_match.url_name == 'cargar_documento' %}
+                bg-white text-primary
+                {% else %}
+                bg-gray-900 text-white hover:bg-gray-700
+                {% endif %}
+                rounded-md px-3 py-2 text-sm font-medium flex items-center gap-2">
                 <i data-lucide="upload" class="w-4 h-4"></i>
                 Subir documento
               </a>
               {% endif %}
               {% if user|has_group:"Administradores" %}
-              <a href="{% url 'usuarios' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+              <a href="{% url 'usuarios' %}" class="{% if request.resolver_match.url_name == 'usuarios' %}
+                bg-white text-primary
+                {% else %}
+                bg-gray-900 text-white hover:bg-gray-700
+                {% endif %}
+                rounded-md px-3 py-2 text-sm font-medium flex items-center gap-2">
                 <i data-lucide="users" class="w-4 h-4"></i>
                 Usuarios
               </a>
               {% endif %}
               {% if user|has_group:"Administradores" %}
-              <a href="{% url 'puertos' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+              <a href="{% url 'puertos' %}" class="{% if request.resolver_match.url_name == 'puertos' %}
+                bg-white text-primary
+                {% else %}
+                bg-gray-900 text-white hover:bg-gray-700
+                {% endif %}
+                rounded-md px-3 py-2 text-sm font-medium flex items-center gap-2">
                 <i data-lucide="anchor" class="w-4 h-4"></i>
                 Puertos
               </a>
               {% endif %}
               {% if user|has_any_group:"Administradores,Usuario" %}
-              <a href="{% url 'rutas' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+              <a href="{% url 'rutas' %}" class="{% if request.resolver_match.url_name == 'rutas' %}
+                bg-white text-primary
+                {% else %}
+                bg-gray-900 text-white hover:bg-gray-700
+                {% endif %}
+                rounded-md px-3 py-2 text-sm font-medium flex items-center gap-2">
                 <i data-lucide="compass" class="w-4 h-4"></i>
                 Rutas
               </a>
               {% endif %}
               {% if user|has_any_group:"Administradores,Encargados" %}
-              <a href="{% url 'validaciones' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+              <a href="{% url 'validaciones' %}" class="{% if request.resolver_match.url_name == 'validaciones' %}
+                bg-white text-primary
+                {% else %}
+                bg-gray-900 text-white hover:bg-gray-700
+                {% endif %}
+                rounded-md px-3 py-2 text-sm font-medium flex items-center gap-2">
                 <i data-lucide="check-square" class="w-4 h-4"></i>
                 Validaciones
               </a>

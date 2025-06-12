@@ -20,34 +20,77 @@
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
               </div>
-              <input type="text" id="search" placeholder="Buscar documentos..." class="block w-full sm:w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm">
+              <input type="text" id="search" placeholder="Buscar documentos..."
+                   class="block w-full sm:w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
+                   autocomplete="off">
+              <ul id="searchResults" class="absolute bg-white border border-gray-200 mt-1 rounded shadow-md z-50 hidden w-full sm:w-64"></ul>
+              <script>
+                const searchInput = document.getElementById('search');
+                const resultsContainer = document.getElementById('searchResults');
+
+                searchInput.addEventListener('input', async function () {
+                  const query = this.value.trim();
+
+                  if (query.length < 2) {
+                    resultsContainer.innerHTML = '';
+                    resultsContainer.classList.add('hidden');
+                    return;
+                  }
+
+                  try {
+                    const response = await fetch(`/buscar-documentos/?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+
+                    if (data.resultados.length > 0) {
+                      resultsContainer.innerHTML = data.resultados.map(doc => `
+                        <li class="px-4 py-2 text-sm text-gray-700">
+                          ${doc.nombre}
+                        </li>
+                      `).join('');
+                      resultsContainer.classList.remove('hidden');
+                    } else {
+                      resultsContainer.innerHTML = '<li class="px-4 py-2 text-sm text-gray-500">Sin resultados</li>';
+                      resultsContainer.classList.remove('hidden');
+                    }
+
+                  } catch (error) {
+                    console.error(error);
+                    resultsContainer.classList.add('hidden');
+                  }
+                });
+
+                document.addEventListener('click', function (e) {
+                  if (!resultsContainer.contains(e.target) && e.target !== searchInput) {
+                    resultsContainer.classList.add('hidden');
+                  }
+                });
+              </script>
             </div>
-            <select id="statusFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
-              <option value="">Todos los estados</option>
-              <option value="pending">Pendiente</option>
-              <option value="in_review">En revisión</option>
-              <option value="approved">Aprobado</option>
-              <option value="rejected">Rechazado</option>
-            </select>
-            <select id="portFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
-              <option value="">Todos los puertos</option>
-              <option value="1">Puerto de La Unión</option>
-              <option value="2">Puerto de La Libertad</option>
-              <option value="3">Puerto El Triunfo</option>
-              <option value="4">Puerto de La Concordia</option>
-              <option value="5">Puerto de La Puntilla</option>
-              <option value="6">Puerto El Tamarindo</option>
-              <option value="7">Puerto El Cuco</option>
-            </select>
-            <select id="typeFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
-              <option value="">Todos los tipos</option>
-              <option value="contrato">Contrato</option>
-              <option value="certificado">Certificado</option>
-              <option value="informe">Informe</option>
-              <option value="manual">Manual</option>
-              <option value="licencia">Licencia</option>
-              <option value="permiso">Permiso</option>
-            </select>
+            <form method="get" id="filterForm" class="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
+              <select name="tipo" id="typeFilter" onchange="document.getElementById('filterForm').submit()" 
+                      class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="">Todos los tipos</option>
+                {% for tipo in tipos_existentes %}
+                  <option value="{{ tipo }}" {% if tipo == tipo_seleccionado %}selected{% endif %}>{{ tipo|title }}</option>
+                {% endfor %}
+              </select>
+
+              <select name="estado" onchange="document.getElementById('filterForm').submit()"
+                      class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="">Todos los estados</option>
+                <option value="Pendiente" {% if estado_seleccionado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="Valido" {% if estado_seleccionado == 'Valido' %}selected{% endif %}>Valido</option>
+                <option value="Rechazado" {% if estado_seleccionado == 'Rechazado' %}selected{% endif %}>Rechazado</option>
+              </select>
+
+              <select name="puerto" id="portFilter" onchange="document.getElementById('filterForm').submit()"
+                class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="">Todos los puertos</option>
+                {% for id, nombre in puertos_existentes %}
+                  <option value="{{ id }}" {% if puerto_seleccionado == id|stringformat:"s" %}selected{% endif %}>{{ nombre }}</option>
+                {% endfor %}
+              </select>
+            </form>
           </div>
         </div>
         
@@ -72,7 +115,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200" id="documentsTableBody">
               {% for val in validaciones %}
-                <tr>
+                <tr class="document-row">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <a href="{{ val.archivo_url }}" target="_blank" style="color: blue; text-decoration: underline;">{{ val.archivo_nombre }}</a>
                   </td>
@@ -109,6 +152,17 @@
                   </td>
                 </tr>
               {% endfor %}
+              <script>
+                document.getElementById('search').addEventListener('input', function () {
+                  const query = this.value.toLowerCase();
+                  const rows = document.querySelectorAll('.document-row');
+
+                  rows.forEach(row => {
+                    const text = row.querySelector('td').textContent.toLowerCase();
+                    row.style.display = text.includes(query) ? '' : 'none';
+                  });
+                });
+              </script>
               <script>
                 let currentValidationId = null;
                 let currentAction = null;

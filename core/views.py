@@ -233,12 +233,26 @@ def lista_rutas(request):
 @login_required
 @grupo_requerido('Administradores', 'Encargados')
 def lista_validaciones(request):
+    estado_filtro = request.GET.get('estado', '')
+    tipo_filtro = request.GET.get('tipo', '')
+    puerto_filtro = request.GET.get('puerto', '')
+
     validaciones = Validacion.objects.select_related(
         'documento__PuertoRuta__puerto',
         'documento__PuertoRuta__ruta',
         'usuario',
         'documento'
     )
+
+    if estado_filtro:
+        validaciones = validaciones.filter(estado=estado_filtro)
+
+    if tipo_filtro:
+        validaciones = validaciones.filter(documento__tipo=tipo_filtro)
+
+    if puerto_filtro:
+        validaciones = validaciones.filter(documento__PuertoRuta__puerto__id=puerto_filtro)
+
 
     data = []
     for val in validaciones:
@@ -256,7 +270,21 @@ def lista_validaciones(request):
             'archivo_nombre': doc.archivo_pdf.name.split('/')[-1] if doc.archivo_pdf else 'Sin archivo',
             'comentario': val.comentario or '-'
         })
-    return render(request, 'core/validaciones.html', {'validaciones': data})
+    estados_existentes = Validacion.objects.values_list('estado', flat=True).distinct() 
+    tipos_existentes = Validacion.objects.values_list('documento__tipo', flat=True).distinct()
+    puertos_existentes = Validacion.objects.values_list('documento__PuertoRuta__puerto__id', 'documento__PuertoRuta__puerto__nombre').distinct()
+ 
+
+    return render(request, 'core/validaciones.html', {
+    'validaciones': data,
+    'estados_existentes': estados_existentes,
+    'estado_seleccionado': estado_filtro,
+    'tipos_existentes': tipos_existentes,
+    'puertos_existentes': puertos_existentes,
+    'estado_seleccionado': estado_filtro,
+    'tipo_seleccionado': tipo_filtro,
+    'puerto_seleccionado': puerto_filtro,
+})
 
 
 #Actualizar estados en la vista de validaciones
@@ -326,13 +354,17 @@ def subir_documento_api(request):
 
 #-------------Vista de documentos renderizado------------------
 @login_required
-@grupo_requerido('Administradores', 'Encargados')
+@grupo_requerido('Administradores', 'Encargados', 'Usuario')
 def lista_documentos(request):
     tipo_filtro = request.GET.get('tipo', '')
     estado_filtro = request.GET.get('estado', '')
     puerto_filtro = request.GET.get('puerto', '')
     documentos_raw = DocumentoCarga.objects.select_related('PuertoRuta__puerto', 'PuertoRuta__ruta', 'creado_por').all().order_by('-fecha')
     puertos_existentes = Puerto.objects.values_list('id', 'nombre').distinct()
+
+    #if request.user.groups.filter(name="Usuario").exists():
+    #  documentos_raw = documentos_raw.filter(creado_por=request.user)
+
 
     if puerto_filtro:
         documentos_raw = documentos_raw.filter(PuertoRuta__puerto__id=puerto_filtro)
@@ -344,6 +376,7 @@ def lista_documentos(request):
     documentos_raw = documentos_raw.order_by('-fecha').all()
 
     tipos_existentes = DocumentoCarga.objects.values_list('tipo', flat=True).distinct()
+    
     documentos = []
     for doc in documentos_raw:
         ultima_validacion = doc.validacion_set.last()

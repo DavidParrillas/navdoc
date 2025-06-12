@@ -13,6 +13,7 @@ urlpatterns = [
     path('documentos/cargar/', views.cargar_documento, name='cargar_documento'),
     path('puertos/', views.vista_puertos, name='puertos'),
     path('usuarios/', views.listar_usuarios, name='usuarios'),
+    path('usuarios/crear/', views.crear_usuario, name='crear_usuario'),
     path('validaciones/', views.ver_validaciones, name='validaciones'),
 
     # API Puertos

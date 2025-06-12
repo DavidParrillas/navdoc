@@ -7,6 +7,9 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import User
 
 from .models import DocumentoCarga, Puerto, Validacion, Ruta, PuertoRuta
 from django.contrib.auth.models import User
@@ -353,3 +356,47 @@ def login_view(request):
             messages.error(request, "Usuario o contraseña incorrectos.")  
 
     return render(request, 'core/login.html')
+
+@require_POST
+@login_required
+@grupo_requerido('Administradores')
+def crear_usuario(request):
+    username = request.POST.get('usuario')
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+    role = request.POST.get('rol')
+    estado = request.POST.get('estado') == "true"
+
+    if not all([username, email, password, role]):
+        messages.error(request, "Todos los campos son obligatorios.")
+        return redirect('listar_usuarios')
+
+    if len(password) < 8:
+        messages.error(request, "La contraseña debe tener al menos 8 caracteres.")
+        return redirect('listar_usuarios')
+
+    if User.objects.filter(username=username).exists():
+        messages.error(request, "El nombre de usuario ya existe.")
+        return redirect('listar_usuarios')
+
+    try:
+        user = User.objects.create_user(username=username, email=email, password=password)
+        user.is_active = estado
+
+        if role == 'admin':
+            user.groups.add(Group.objects.get(name='Administradores'))
+        elif role == 'validator':
+            user.groups.add(Group.objects.get(name='Encargados'))
+        else:
+            user.groups.add(Group.objects.get(name='Usuario'))
+
+        user.save()
+        messages.success(request, "Usuario creado correctamente.")
+    except Exception as e:
+        messages.error(request, f"Error al crear el usuario: {e}")
+
+    return redirect('crear_usuario')
+
+def usuarios_view(request):
+    usuarios = User.objects.all()
+    return render(request, 'usuarios.html', {'usuarios': usuarios})

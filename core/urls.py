@@ -15,7 +15,6 @@ urlpatterns = [
     path('puertos/', views.vista_puertos, name='puertos'),
     path('usuarios/', views.listar_usuarios, name='usuarios'),
     path('usuarios/crear/', views.crear_usuario, name='crear_usuario'),
-    path('validaciones/', views.ver_validaciones, name='validaciones'),
     path('validaciones/', views.lista_validaciones, name='validaciones'),
     path('buscar-documentos/', views.buscar_documentos, name='buscar_documentos'),
 
@@ -33,6 +32,14 @@ urlpatterns = [
 
     #Actualizar estados
     path('validaciones/actualizar_estado/<int:pk>/', views.actualizar_estado, name='actualizar_estado'),
+
+    #Eliminar usuario
+    path('usuarios/eliminar/<int:user_id>/', views.eliminar_usuario, name='eliminar_usuario'),
+
+    #Actualizar usuario
+    path('usuarios/editar/<int:user_id>/', views.editar_usuario, name='editar_usuario'),
+
+
 
 
     

@@ -16,6 +16,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_GET
 from .models import DocumentoCarga, Puerto, Validacion, Ruta, PuertoRuta
 from django.contrib.auth.models import User
+from core.models import DocumentoCarga, Puerto
 
 
 # Decorador para controlar acceso por grupos
@@ -238,6 +239,11 @@ def lista_validaciones(request):
     tipo_filtro = request.GET.get('tipo', '')
     puerto_filtro = request.GET.get('puerto', '')
 
+    estados_existentes = Validacion.objects.values_list('estado', flat=True).distinct() 
+    tipos_existentes = Validacion.objects.values_list('documento__tipo', flat=True).distinct()
+    puertos_existentes = Validacion.objects.values_list('documento__PuertoRuta__puerto__id', 'documento__PuertoRuta__puerto__nombre').distinct()
+    
+
     validaciones = Validacion.objects.select_related(
         'documento__PuertoRuta__puerto',
         'documento__PuertoRuta__ruta',
@@ -271,11 +277,7 @@ def lista_validaciones(request):
             'archivo_nombre': doc.archivo_pdf.name.split('/')[-1] if doc.archivo_pdf else 'Sin archivo',
             'comentario': val.comentario or '-'
         })
-    estados_existentes = Validacion.objects.values_list('estado', flat=True).distinct() 
-    tipos_existentes = Validacion.objects.values_list('documento__tipo', flat=True).distinct()
-    puertos_existentes = Validacion.objects.values_list('documento__PuertoRuta__puerto__id', 'documento__PuertoRuta__puerto__nombre').distinct()
- 
-
+    
     return render(request, 'core/validaciones.html', {
     'validaciones': data,
     'estados_existentes': estados_existentes,
@@ -395,7 +397,7 @@ def lista_documentos(request):
             'puerto': doc.PuertoRuta.puerto.nombre,
             'ruta': doc.PuertoRuta.ruta.nombre,
             'fecha': doc.fecha,
-            'creado_por': doc.creado_por.username,
+            'creado_por': doc.creado_por.username if doc.creado_por else 'N/A',
             'estado': doc.validacion_set.last().get_estado_display() if doc.validacion_set.last() else 'N/A'
         })
     return render(request, 'core/documentos.html', {
@@ -425,6 +427,31 @@ def buscar_documentos(request):
             })
 
     return JsonResponse({'resultados': resultados})
+
+
+#------------Funcion para agregar usuarios desde la vista usuarios--------
+@login_required
+def crear_usuario(request):
+    if request.method == 'POST':
+        username = request.POST.get('usuario')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        rol = request.POST.get('rol')
+        estado = request.POST.get('estado') == 'true'  # convierte "true"/"false" a booleano
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'El nombre de usuario ya existe.')
+            return redirect('usuarios')
+
+        user = User.objects.create_user(username=username, email=email, password=password)
+        user.is_active = estado
+        # Aquí podrías asignar grupos o roles si estás usando el sistema de permisos de Django
+        user.save()
+
+        messages.success(request, 'Usuario creado correctamente.')
+        return redirect('usuarios')  # <<--- CORRECTO: coincide con el name del URL
+
+    return redirect('usuarios')
 
 # ---------- Vista para renderizar rutas y puertos para frontend ----------
 @login_required
@@ -559,8 +586,48 @@ def crear_usuario(request):
     except Exception as e:
         messages.error(request, f"Error al crear el usuario: {e}")
 
-    return redirect('crear_usuario')
+    return redirect('usuarios')
 
-def usuarios_view(request):
+
+#-----------Cargar tabla de usuarios --------------
+@login_required
+@grupo_requerido('Administradores')
+def listar_usuarios(request):
     usuarios = User.objects.all()
-    return render(request, 'usuarios.html', {'usuarios': usuarios})
+    print("Usuarios en base de datos:", usuarios)
+    return render(request, 'core/usuarios.html', {'usuarios': usuarios})
+
+#---------Funcion para eliminar usuarios desde la vista de usuarios-----------
+@login_required
+@grupo_requerido('Administradores')
+def eliminar_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, 'Usuario eliminado correctamente.')
+    return redirect('usuarios')
+
+#------------Funcion para editar usuario--------------------------
+@login_required
+@grupo_requerido('Administradores')
+def editar_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        nueva_contrasena = request.POST.get('password')
+        if nueva_contrasena:
+            user.set_password(nueva_contrasena)
+
+        nuevo_rol = request.POST.get('rol')
+        user.groups.clear()  
+        if nuevo_rol:
+            grupo = Group.objects.get(name=nuevo_rol)
+            user.groups.add(grupo)
+
+        estado = request.POST.get('estado')
+        user.is_active = estado == 'true'
+
+        user.save()
+        messages.success(request, 'Usuario actualizado correctamente.')
+
+    return redirect('usuarios')

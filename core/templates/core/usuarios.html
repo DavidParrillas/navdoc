@@ -88,14 +88,17 @@
                   {{ user.last_login|default:"Nunca" }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 space-x-2">
-                  <!-- Botón editar -->
                   <button 
-                    onclick="abrirModalEditar('{{ user.id }}', '{{ user.username|escapejs }}', '{{ user.email|escapejs }}', '{{ user.groups.first.name|default_if_none:''|escapejs }}', '{{ user.is_active }}')" 
-                    class="px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition">
+                    class="px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition"
+                    data-user-id="{{ user.id }}"
+                    data-username="{{ user.username|escapejs }}"
+                    data-email="{{ user.email|escapejs }}"
+                    data-role="{{ user.groups.first.name|default_if_none:''|escapejs }}"
+                    data-active="{{ user.is_active|yesno:'true,false' }}"
+                    onclick="abrirModalEditar(this)">
                     Editar
                   </button>
 
-                  <!-- Botón eliminar -->
                   <form method="POST" action="{% url 'eliminar_usuario' user.id %}" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit"
@@ -275,30 +278,23 @@
     document.getElementById('usuarioForm').reset();
   }
 
-  // Inicializar íconos Lucide
   lucide.createIcons();
 </script>
 
 <script>
-  function abrirModalEditar(id, username, email, rol, estado) {
-    // Rellenar los valores
-    document.getElementById('editarUsuario').value = username;
-    document.getElementById('editarEmail').value = email;
-    document.getElementById('editarPassword').value = '';
-    document.getElementById('editarRol').value = rol.toLowerCase();
-    document.getElementById('editarEstado').value = (estado === 'True') ? 'true' : 'false';
+function abrirModalEditar(id, username, email, role, isActive) {
+  document.getElementById("modalEditar").classList.remove("hidden");
 
-    // Actualizar la acción del formulario
-    document.getElementById('editarUsuarioForm').action = `/usuarios/editar/${id}/`;
+  document.getElementById("editarUsuario").value = username;
+  document.getElementById("editarEmail").value = email;
+  document.getElementById("editarRol").value = role;
+  document.getElementById("editarEstado").value = isActive ? "true" : "false";
 
-    // Mostrar el modal
-    document.getElementById('modalEditar').classList.remove('hidden');
-  }
+  document.getElementById("editarUsuarioForm").action = `/ruta/para/editar/${id}/`;
+}
 
-  function cerrarModalEditar() {
-    document.getElementById('modalEditar').classList.add('hidden');
-  }
+function cerrarModalEditar() {
+  document.getElementById("modalEditar").classList.add("hidden");
+}
 </script>
-
-
 {% endblock %}

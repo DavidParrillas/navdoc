@@ -365,8 +365,8 @@ def lista_documentos(request):
     documentos_raw = DocumentoCarga.objects.select_related('PuertoRuta__puerto', 'PuertoRuta__ruta', 'creado_por').all().order_by('-fecha')
     puertos_existentes = Puerto.objects.values_list('id', 'nombre').distinct()
 
-    #if request.user.groups.filter(name="Usuario").exists():
-    #  documentos_raw = documentos_raw.filter(creado_por=request.user)
+    if request.user.groups.filter(name="Usuario").exists():
+      documentos_raw = documentos_raw.filter(creado_por=request.user)
 
 
     if puerto_filtro:

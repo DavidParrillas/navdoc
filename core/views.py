@@ -631,3 +631,14 @@ def editar_usuario(request, user_id):
         messages.success(request, 'Usuario actualizado correctamente.')
 
     return redirect('usuarios')
+
+@csrf_exempt
+def eliminar_documento(request, id):
+    if request.method == 'DELETE':
+        try:
+            doc = DocumentoCarga.objects.get(id=id)
+            doc.delete()
+            return JsonResponse({'message': 'Documento eliminado'})
+        except DocumentoCarga.DoesNotExist:
+            return JsonResponse({'error': 'No encontrado'}, status=404)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

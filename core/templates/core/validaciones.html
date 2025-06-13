@@ -5,7 +5,7 @@
     <div class="px-4 py-6 sm:px-0">
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-800">Validaciones</h1>
-        <p class="text-gray-600 mt-2">Revisa y valida los documentos de los puertos de El Salvador</p>
+        <p class="text-gray-600 mt-2">Revisa y valida los documentos de los puertos de cada ruta</p>
       </div>
       
       <!-- Documents Table -->
@@ -20,9 +20,7 @@
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
               </div>
-              <input type="text" id="search" placeholder="Buscar documentos..."
-                   class="block w-full sm:w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
-                   autocomplete="off">
+              <input type="text" id="search" placeholder="Buscar documentos..." class="block w-full sm:w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm" autocomplete="off">
               <ul id="searchResults" class="absolute bg-white border border-gray-200 mt-1 rounded shadow-md z-50 hidden w-full sm:w-64"></ul>
               <script>
                 const searchInput = document.getElementById('search');
@@ -117,7 +115,10 @@
               {% for val in validaciones %}
                 <tr class="document-row">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <a href="{{ val.archivo_url }}" target="_blank" style="color: blue; text-decoration: underline;">{{ val.archivo_nombre }}</a>
+                    <a href="{{ val.archivo_url }}" target="_blank" class="bg-slate-400/20 py-1 px-2 rounded hover:bg-slate-400/30 transition-colors text-xs">
+                      <img src="/static/img/file-type-pdf.svg" alt="" class="inline size-4 text-red-800"/>
+                      {{ val.archivo_nombre }}
+                    </a>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ val.tipo }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ val.ruta }}</td>
@@ -147,7 +148,7 @@
                         Gestionar
                       </button>
                     {% else %}
-                      <span class="text-gray-500 text-xs italic">Sin acciones</span>
+                      <span class="text-gray-500 text-xs italic">Revisado</span>
                     {% endif %}
                   </td>
                 </tr>

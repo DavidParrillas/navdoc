@@ -148,7 +148,8 @@
               {% for doc in documentos %}
               <tr class="document-row">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <a href="{{ doc.url }}" target="_blank" style="color: blue; text-decoration: underline;">
+                  <a href="{{ doc.url }}" target="_blank" class="bg-slate-400/20 py-1 px-2 rounded hover:bg-slate-400/30 transition-colors text-xs">
+                    <img src="/static/img/file-type-pdf.svg" alt="" class="inline size-4 text-red-800"/>
                     {{ doc.nombre }}
                   </a>
                 </td>

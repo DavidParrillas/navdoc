@@ -6,7 +6,6 @@ print('urls.py cargado')
 
 urlpatterns = [
     # Páginas principales (HTML)
-    path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -24,6 +23,7 @@ urlpatterns = [
 
     # API Documentos
     path('api/documentos/subir/', views.subir_documento_api, name='subir_documento_api'),
+    path('eliminar_documento/<int:id>/', views.eliminar_documento, name='eliminar_documento'),
 
     # API Rutas (funciones)
     path('api/rutas/', views.rutas_api, name='rutas_api'),

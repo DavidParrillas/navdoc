@@ -80,8 +80,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'navdoc',
-        'USER': 'postgres',
-        'PASSWORD': 'alex',
+        'USER': 'navuser',
+        'PASSWORD': 'password',
         'HOST': 'localhost',
         'PORT': '5432',
     }

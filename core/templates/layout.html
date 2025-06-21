@@ -113,13 +113,26 @@
           <div class="ml-4 flex items-center md:ml-6">
 
             <div class="ml-3 relative">
-              <div>
-                <button type="button" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu-button">
-                  <span class="sr-only">Abrir menú de usuario</span>
-                  <img class="h-8 w-8 rounded-full" src="{% static 'img/usuario.png' %}" alt="Avatar de usuario">
-                </button>
-              </div>
+              <!-- Botón de usuario -->
+                <div class="relative inline-block text-left">
+                  <button type="button"
+                          class="bg-gray-800 rounded-full flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+                          id="user-menu-button"
+                          onclick="toggleUserInfo()">
+                    <img class="h-8 w-8 rounded-full" src="{% static 'img/usuario.png' %}" alt="Avatar de usuario">
+                  </button>
+
+                  <!-- Contenedor de info oculta -->
+                  <div id="user-info"
+                      class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-50">
+                    <div class="py-2 px-4 text-sm text-gray-700">
+                      <strong>{{ request.user.username }}</strong><br>
+                      <span class="text-gray-500 text-xs">{{ request.user.email }}</span>
+                    </div>
+                  </div>
+                </div>
             </div>
+
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
               <button type="submit" class="text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
@@ -222,6 +235,21 @@
       menuIcon.classList.toggle('hidden');
       closeIcon.classList.toggle('hidden');
     });
+
+    function toggleUserInfo() {
+    const menu = document.getElementById('user-info');
+    menu.classList.toggle('hidden');
+    }
+
+    // Cierra el menú si haces clic fuera
+    document.addEventListener('click', function(event) {
+      const button = document.getElementById('user-menu-button');
+      const menu = document.getElementById('user-info');
+      if (!button.contains(event.target) && !menu.contains(event.target)) {
+        menu.classList.add('hidden');
+      }
+    });
   </script>
+
 </body>
 </html>

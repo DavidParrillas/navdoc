@@ -17,6 +17,10 @@ from django.views.decorators.http import require_GET
 from .models import DocumentoCarga, Puerto, Validacion, Ruta, PuertoRuta
 from django.contrib.auth.models import User
 from core.models import DocumentoCarga, Puerto
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
+from django.contrib import messages
+from django.http import JsonResponse
 
 
 # Decorador para controlar acceso por grupos
@@ -431,27 +435,37 @@ def buscar_documentos(request):
 
 #------------Funcion para agregar usuarios desde la vista usuarios--------
 @login_required
+@grupo_requerido('Administradores')
 def crear_usuario(request):
     if request.method == 'POST':
-        username = request.POST.get('usuario')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        rol = request.POST.get('rol')
-        estado = request.POST.get('estado') == 'true'  # convierte "true"/"false" a booleano
+        username = request.POST['usuario']
+        email = request.POST['email']
+        password = request.POST['password']
+        rol = request.POST['rol']
+        estado = request.POST['estado'] == 'true'
 
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'El nombre de usuario ya existe.')
-            return redirect('usuarios')
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            for error in e.messages:
+                messages.error(request, error)
+            # Reabrir el modal y mantener los datos
+            return render(request, 'core/usuarios.html', {
+                'abrir_modal': True,
+                'usuarios': User.objects.all(),
+                'form_data': request.POST
+            })
 
         user = User.objects.create_user(username=username, email=email, password=password)
         user.is_active = estado
-        # Aquí podrías asignar grupos o roles si estás usando el sistema de permisos de Django
-        user.save()
-
-        messages.success(request, 'Usuario creado correctamente.')
-        return redirect('usuarios')  # <<--- CORRECTO: coincide con el name del URL
-
-    return redirect('usuarios')
+        if rol == 'admin':
+            user.is_superuser = True
+        else:
+            group = Group.objects.get(name=rol)
+            user.groups.add(group)
+            user.save()
+            messages.success(request, 'Usuario creado correctamente.')
+            return redirect('listar_usuarios')
 
 # ---------- Vista para renderizar rutas y puertos para frontend ----------
 @login_required
@@ -496,7 +510,8 @@ def vista_puertos(request):
 @login_required
 @grupo_requerido('Administradores')
 def listar_usuarios(request):
-    return render(request, 'core/usuarios.html')
+    usuarios = User.objects.all()
+    return render(request, 'core/usuarios.html', {'usuarios': usuarios})
 
 
 @login_required
@@ -552,60 +567,42 @@ def login_view(request):
 @login_required
 @grupo_requerido('Administradores')
 def crear_usuario(request):
-    username = request.POST.get('usuario')
-    email = request.POST.get('email')
-    password = request.POST.get('password')
-    role = request.POST.get('rol')
-    estado = request.POST.get('estado') == "true"
-
-    if not all([username, email, password, role]):
-        messages.error(request, "Todos los campos son obligatorios.")
-        return redirect('listar_usuarios')
-
-    if len(password) < 8:
-        messages.error(request, "La contraseña debe tener al menos 8 caracteres.")
-        return redirect('listar_usuarios')
-
-    if User.objects.filter(username=username).exists():
-        messages.error(request, "El nombre de usuario ya existe.")
-        return redirect('listar_usuarios')
-
-    try:
-        user = User.objects.create_user(username=username, email=email, password=password)
-        user.is_active = estado
-
-        if role == 'admin':
-            user.groups.add(Group.objects.get(name='Administradores'))
-        elif role == 'validator':
-            user.groups.add(Group.objects.get(name='Encargados'))
-        else:
-            user.groups.add(Group.objects.get(name='Usuario'))
-
-        user.save()
-        messages.success(request, "Usuario creado correctamente.")
-    except Exception as e:
-        messages.error(request, f"Error al crear el usuario: {e}")
-
-    return redirect('usuarios')
-
-
-#-----------Cargar tabla de usuarios --------------
-@login_required
-@grupo_requerido('Administradores')
-def listar_usuarios(request):
-    usuarios = User.objects.all()
-    print("Usuarios en base de datos:", usuarios)
-    return render(request, 'core/usuarios.html', {'usuarios': usuarios})
-
-#---------Funcion para eliminar usuarios desde la vista de usuarios-----------
-@login_required
-@grupo_requerido('Administradores')
-def eliminar_usuario(request, user_id):
-    user = get_object_or_404(User, id=user_id)
     if request.method == 'POST':
-        user.delete()
-        messages.success(request, 'Usuario eliminado correctamente.')
-    return redirect('usuarios')
+        usuario = request.POST.get('usuario')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        rol = request.POST.get('rol')
+        estado = request.POST.get('estado') == 'true'
+
+        # Validación de contraseña
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': e.messages})
+            else:
+                for error in e.messages:
+                    messages.error(request, error)
+                return redirect('usuarios')
+
+        # Crear usuario
+        try:
+            user = User.objects.create_user(username=usuario, email=email, password=password, is_active=estado)
+            group = Group.objects.get(name=rol)
+            user.groups.add(group)
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
+            else:
+                messages.success(request, 'Usuario creado exitosamente.')
+                return redirect('usuarios')
+        except Exception as e:
+            error_msg = str(e)
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': [error_msg]})
+            else:
+                messages.error(request, error_msg)
+                return redirect('usuarios')
 
 #------------Funcion para editar usuario--------------------------
 @login_required
@@ -616,7 +613,13 @@ def editar_usuario(request, user_id):
     if request.method == 'POST':
         nueva_contrasena = request.POST.get('password')
         if nueva_contrasena:
-            user.set_password(nueva_contrasena)
+            try:
+                validate_password(nueva_contrasena)
+                user.set_password(nueva_contrasena)
+            except ValidationError as e:
+             for error in e.messages:
+                messages.error(request, error)
+        return redirect('usuarios')
 
         nuevo_rol = request.POST.get('rol')
         user.groups.clear()  
@@ -630,6 +633,18 @@ def editar_usuario(request, user_id):
         user.save()
         messages.success(request, 'Usuario actualizado correctamente.')
 
+    return redirect('usuarios')
+@require_POST
+def eliminar_usuario(request, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+        if user.is_superuser:
+            messages.error(request, "No se puede eliminar a un administrador.")
+        else:
+            user.delete()
+            messages.success(request, "Usuario eliminado correctamente.")
+    except User.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
     return redirect('usuarios')
 
 @csrf_exempt

@@ -81,13 +81,13 @@
                 <option value="Rechazado" {% if estado_seleccionado == 'Rechazado' %}selected{% endif %}>Rechazado</option>
               </select>
 
-              <select name="puerto" id="portFilter" onchange="document.getElementById('filterForm').submit()"
+             <!-- <select name="puerto" id="portFilter" onchange="document.getElementById('filterForm').submit()"
                 class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
                 <option value="">Todos los puertos</option>
                 {% for id, nombre in puertos_existentes %}
                   <option value="{{ id }}" {% if puerto_seleccionado == id|stringformat:"s" %}selected{% endif %}>{{ nombre }}</option>
                 {% endfor %}
-              </select>
+              </select> -->
             </form>
           </div>
         </div>
@@ -144,7 +144,7 @@
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 space-x-2">
                     {% if val.estado == "Pendiente" %}
                       <button onclick="openValidationModal('{{ val.id }}', '{{ val.archivo_nombre|escapejs }}', '{{ val.ruta|escapejs }}', '{{ val.tipo|escapejs }}', '{{ val.usuario|escapejs }}')" 
-                              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium">
+                              class="bg-gray-900 hover:bg-gray-800 text-white px-3 py-1 rounded text-xs font-medium">
                         Gestionar
                       </button>
                     {% else %}
@@ -295,11 +295,11 @@
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-gray-200">
-          <button type="button" onclick="validateDocument('Valido')" class="flex-1 bg-green-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200">
+          <button type="button" onclick="validateDocument('Valido')" class="flex-1 bg-green-700 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200">
             <i data-lucide="check" class="h-4 w-4 inline mr-2"></i>
             Aprobar Documento
           </button>
-          <button type="button" onclick="validateDocument('Rechazado')" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200">
+          <button type="button" onclick="validateDocument('Rechazado')" class="flex-1 bg-red-700 text-white px-4 py-3 rounded-md text-sm font-medium hover:bg-red-900 focus:outline-none focus:ring-2 focus:text-red-900 transition-colors duration-200">
             <i data-lucide="x" class="h-4 w-4 inline mr-2"></i>
             Rechazar Documento
           </button>

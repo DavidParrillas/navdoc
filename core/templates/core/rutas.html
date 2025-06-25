@@ -415,7 +415,7 @@ function deleteRuta(rutaId) {
   })
   .then(response => {
     if (!response.ok) throw new Error('Error al eliminar la ruta');
-    return response.json();
+    location.reload();
   })
   .then(data => {
     alert(data.mensaje || 'Ruta eliminada correctamente.');
@@ -423,7 +423,8 @@ function deleteRuta(rutaId) {
   })
   .catch(error => {
     alert(error.message);
-  });
+  }
+);
 }
 
 // Renderizar rutas en la tabla

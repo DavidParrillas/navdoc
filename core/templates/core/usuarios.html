@@ -155,46 +155,119 @@
       <div class="mt-3 sm:mt-0 sm:text-left w-full">
         <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Agregar Usuario</h3>
         <div class="mt-4">
+          <div id="erroresUsuario"></div>
+            <form id="formCrearUsuario" method="post" action="{% url 'crear_usuario' %}">
+              {% csrf_token %}
+              <!-- campos... -->
+              </form>
+              <div id="erroresUsuario" class="hidden mb-4 bg-red-100 text-red-800 border border-red-300 px-4 py-2 rounded-md text-sm"></div>
+                <script>
+                  $('#usuarioForm').on('submit', function (e) {
+                    e.preventDefault();
+
+                    $.ajax({
+                      url: $(this).attr('action'),
+                      method: 'POST',
+                      data: $(this).serialize(),
+                      headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                      },
+                      success: function (response) {
+                        if (response.success) {
+                          location.reload();
+                        } else {
+                          mostrarErrores(response.errors);
+                        }
+                      },
+                      error: function () {
+                        mostrarErrores(['Ocurrió un error inesperado.']);
+                      }
+                    });
+                  });
+
+                  function mostrarErrores(errors) {
+                    const contenedor = document.getElementById('erroresUsuario');
+                    contenedor.innerHTML = errors.map(err => `<p>${err}</p>`).join('');
+                    contenedor.classList.remove('hidden');
+                  }
+                </script>
+
          <form id="usuarioForm" method="POST" action="{% url 'crear_usuario' %}" class="space-y-4">
   {% csrf_token %}
 
   <div>
     <label for="usuario" class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
     <input type="text" name="usuario" id="usuario" required
+      value="{{ form_data.usuario|default:'' }}"
       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
   </div>
 
   <div>
     <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
     <input type="email" name="email" id="email" required
+      value="{{ form_data.email|default:'' }}"
       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
   </div>
 
   <div>
     <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-    <input type="password" name="password" id="password" required
-      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
-  </div>
+      <input type="password" name="password" id="password" required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+        onfocus="mostrarRequisitos()" onblur="ocultarRequisitos()">
+      <div id="passwordRequisitos" class="mt-2 hidden text-sm text-gray-600 bg-gray-100 border border-gray-300 rounded-md p-2">
+        <p>La contraseña debe cumplir con:</p>
+        <ul class="list-disc ml-5 mt-1 space-y-1">
+          <li>No debe parecerse a tu información personal.</li>
+          <li>Debe tener al menos 8 caracteres.</li>
+          <li>No debe ser una contraseña común.</li>
+          <li>No debe ser solo números.</li>
+        </ul>
+    </div>
+</div>
+
 
   <div>
     <label for="rol" class="block text-sm font-medium text-gray-700">Rol</label>
-    <select name="rol" id="rol" required
-      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
-      <option value="admin">Administrador</option>
-      <option value="Encargados">Encargados</option>
-      <option value="Usuario">Usuario</option>
+    <select name="rol" id="rol" required ...>
+      <option value="admin" {% if form_data.rol == "admin" %}selected{% endif %}>Administrador</option>
+      <option value="Encargados" {% if form_data.rol == "Encargados" %}selected{% endif %}>Encargados</option>
+      <option value="Usuario" {% if form_data.rol == "Usuario" %}selected{% endif %}>Usuario</option>
     </select>
   </div>
 
   <div>
     <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
-    <select name="estado" id="estado" required
-      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
-      <option value="true">Activo</option>
-      <option value="false">Inactivo</option>
+    <select name="estado" id="estado" required ...>
+      <option value="true" {% if form_data.estado == "true" %}selected{% endif %}>Activo</option>
+      <option value="false" {% if form_data.estado == "false" %}selected{% endif %}>Inactivo</option>
     </select>
   </div>
 </form>
+<div id="erroresUsuario"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $('#formCrearUsuario').on('submit', function (e) {
+    e.preventDefault();
+
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: $(this).serialize(),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      success: function (response) {
+        $('#modalCrearUsuario').modal('hide');
+        location.reload();
+      },
+      error: function (xhr) {
+        const errores = xhr.responseJSON.errors || ["Error inesperado"];
+        let listaErrores = errores.map(e => `<li>${e}</li>`).join('');
+        $('#erroresUsuario').html(`<div class="alert alert-danger"><ul>${listaErrores}</ul></div>`);
+      }
+    });
+  });
+</script>
+
         </div>
       </div>
     </div>
@@ -303,4 +376,24 @@ function cerrarModalEditar() {
   document.getElementById("modalEditar").classList.add("hidden");
 }
 </script>
+
+<script>
+  function mostrarRequisitos() {
+    document.getElementById("passwordRequisitos").classList.remove("hidden");
+  }
+
+  function ocultarRequisitos() {
+    document.getElementById("passwordRequisitos").classList.add("hidden");
+  }
+</script>
+
+{% if abrir_modal %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    openModal("create");
+    mostrarRequisitos();
+  });
+</script>
+{% endif %}
+
 {% endblock %}
